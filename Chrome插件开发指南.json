@@ -1,0 +1,697 @@
+{
+  "runSettings": {
+    "temperature": 1.0,
+    "model": "models/gemini-3.1-pro-preview",
+    "topP": 0.95,
+    "topK": 64,
+    "maxOutputTokens": 65536,
+    "safetySettings": [{
+      "category": "HARM_CATEGORY_HARASSMENT",
+      "threshold": "OFF"
+    }, {
+      "category": "HARM_CATEGORY_HATE_SPEECH",
+      "threshold": "OFF"
+    }, {
+      "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+      "threshold": "OFF"
+    }, {
+      "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+      "threshold": "OFF"
+    }],
+    "enableCodeExecution": false,
+    "enableSearchAsATool": true,
+    "enableBrowseAsATool": false,
+    "googleSearch": {
+    },
+    "thinkingLevel": "THINKING_HIGH",
+    "enableImageSearch": false,
+    "enableGoogleMaps": false,
+    "enableAgentThinkingSummariesControl": false,
+    "enableAgentVisualizationControl": false,
+    "enableAgentCollaborativePlanningControl": false,
+    "environmentMode": "new",
+    "enableWordTimestamps": false,
+    "enableSpeakerDiarization": false,
+    "enablePolishedTranscript": false
+  },
+  "systemInstruction": {
+  },
+  "chunkedPrompt": {
+    "chunks": [{
+      "text": "我想开发一个Chrome插件，类似简洁版的`沉浸式翻译`，先开发几个核心的翻译功能：1、整页对照式翻译；2、基于上下文的划词取义；3、支持基于api key的模型提供商配置，默认支持Qwen相关模型。给出整体设计思路。",
+      "role": "user",
+      "tokenCount": 21,
+      "createTime": "2026-10-13T03:03:10.173Z"
+    }, {
+      "text": "**Analyzing the Task**\n\nI\u0027m currently focused on dissecting the user\u0027s request. My aim is to build a Chrome extension akin to a streamlined \"Immersive Translate.\" I\u0027m grasping the core function: full-page bilingual translation, either side-by-side or interleaved. I\u0027m taking the initial specifications and I\u0027m prepared to move on to the next step.\n\n\n**Defining the Extension\u0027s Features**\n\nI\u0027m now prioritizing the feature set. I\u0027m solidifying the core features: full-page bilingual translation (side-by-side or interleaved), context-aware popup translation for selected text, and configurable API key support for model providers (Qwen is the default). I\u0027m planning to focus on the overall design and architecture.\n\n\n**Refining Extension Functionality**\n\nI\u0027m now diving into the specifics of features. I\u0027ve broken down the full-page translation into steps: DOM parsing to extract text, API calls, and insertion of the translation into the page. I\u0027m focusing on handling layout intricacies and optimizing the process through batching. I\u0027m considering a toggle for translation and quick settings, and also the options UI for configuring the API keys and settings.\n\n\n**Elaborating on Contextual Translation**\n\nI\u0027m now refining the popup translation feature. I\u0027m focusing on acquiring the necessary context for the selected text. I\u0027ll use a `mouseup` event listener to capture the user\u0027s selection, then I\u0027ll extract both the selected text and surrounding context by getting the surrounding paragraph. The Background script will handle the API calls after receiving the data, which will then render a floating tooltip near the cursor.\n\n**Establishing API Configurations**\n\nI\u0027m currently formalizing the API key and model provider configuration. I plan on using `chrome.storage.sync` or `chrome.storage.local` to securely store API keys and the chosen model. To enhance flexibility, I\u0027ll build an abstraction layer for LLM APIs in the Background script. Qwen will serve as the default provider, including its specific models and base URL. I\u0027m preparing to formulate prompt engineering strategies for effective full-page and context-aware translations.\n\n\n**Outlining the Extension\u0027s Structure**\n\nI\u0027m now solidifying the architecture. I\u0027ve broken it down into Manifest V3, Background Service Worker, Content Scripts, Popup, and Options. I\u0027m clarifying how each component contributes to the extension\u0027s core features. I\u0027ve begun to document how the parts interact, ensuring a smooth flow of data and actions. I\u0027m focusing on defining the roles and responsibilities to ensure that the extension can easily handle translations.\n\n\n**Detailing Manifest and Implementation**\n\nI\u0027m now diving into the implementation details. I\u0027m prioritizing Manifest V3, essential permissions: `activeTab`, `storage`, `contextMenus`, and `host_permissions`. I\u0027m working out full-page DOM parsing using recursive traversal, skipping irrelevant tags, and employing chunking for API calls (e.g., 10 paragraphs per request). I\u0027ve got the Qwen API set up, utilizing OpenAI-compatible endpoints which will ensure easy expansion. My prompt engineering strategy includes examples for context-aware translations. I\u0027m focusing on ensuring clarity.\n\n\n",
+      "role": "model",
+      "tokenCount": 1413,
+      "isThought": true,
+      "thinkingBudget": -1,
+      "parts": [{
+        "text": "**Analyzing the Task**\n\nI\u0027m currently focused on dissecting the user\u0027s request. My aim is to build a Chrome extension akin to a streamlined \"Immersive Translate.\" I\u0027m grasping the core function: full-page bilingual translation, either side-by-side or interleaved. I\u0027m taking the initial specifications and I\u0027m prepared to move on to the next step.\n\n\n",
+        "thought": true
+      }, {
+        "text": "**Defining the Extension\u0027s Features**\n\nI\u0027m now prioritizing the feature set. I\u0027m solidifying the core features: full-page bilingual translation (side-by-side or interleaved), context-aware popup translation for selected text, and configurable API key support for model providers (Qwen is the default). I\u0027m planning to focus on the overall design and architecture.\n\n\n",
+        "thought": true
+      }, {
+        "text": "**Refining Extension Functionality**\n\nI\u0027m now diving into the specifics of features. I\u0027ve broken down the full-page translation into steps: DOM parsing to extract text, API calls, and insertion of the translation into the page. I\u0027m focusing on handling layout intricacies and optimizing the process through batching. I\u0027m considering a toggle for translation and quick settings, and also the options UI for configuring the API keys and settings.\n\n\n",
+        "thought": true
+      }, {
+        "text": "**Elaborating on Contextual Translation**\n\nI\u0027m now refining the popup translation feature. I\u0027m focusing on acquiring the necessary context for the selected text. I\u0027ll use a `mouseup` event listener to capture the user\u0027s selection, then I\u0027ll extract both the selected text and surrounding context by getting the surrounding paragraph. The Background script will handle the API calls after receiving the data, which will then render a floating tooltip near the cursor.\n\n**Establishing API Configurations**\n\nI\u0027m currently formalizing the API key and model provider configuration. I plan on using `chrome.storage.sync` or `chrome.storage.local` to securely store API keys and the chosen model. To enhance flexibility, I\u0027ll build an abstraction layer for LLM APIs in the Background script. Qwen will serve as the default provider, including its specific models and base URL. I\u0027m preparing to formulate prompt engineering strategies for effective full-page and context-aware translations.\n\n\n",
+        "thought": true
+      }, {
+        "text": "**Outlining the Extension\u0027s Structure**\n\nI\u0027m now solidifying the architecture. I\u0027ve broken it down into Manifest V3, Background Service Worker, Content Scripts, Popup, and Options. I\u0027m clarifying how each component contributes to the extension\u0027s core features. I\u0027ve begun to document how the parts interact, ensuring a smooth flow of data and actions. I\u0027m focusing on defining the roles and responsibilities to ensure that the extension can easily handle translations.\n\n\n",
+        "thought": true
+      }, {
+        "text": "**Detailing Manifest and Implementation**\n\nI\u0027m now diving into the implementation details. I\u0027m prioritizing Manifest V3, essential permissions: `activeTab`, `storage`, `contextMenus`, and `host_permissions`. I\u0027m working out full-page DOM parsing using recursive traversal, skipping irrelevant tags, and employing chunking for API calls (e.g., 10 paragraphs per request). I\u0027ve got the Qwen API set up, utilizing OpenAI-compatible endpoints which will ensure easy expansion. My prompt engineering strategy includes examples for context-aware translations. I\u0027m focusing on ensuring clarity.\n\n\n",
+        "thought": true
+      }],
+      "createTime": "2026-10-13T03:08:34.561Z"
+    }, {
+      "text": "开发一款类似“沉浸式翻译”的 Chrome 插件是一个非常实用且充满挑战的项目。鉴于你需要实现整页对照、上下文划词以及自定义大模型 API（默认 Qwen），整体设计需要围绕 **Chrome 扩展的 Manifest V3 架构**、**DOM 节点精准操作**以及**大语言模型（LLM）的 Prompt 工程**来展开。\n\n以下是整体设计思路和技术落地方案：\n\n---\n\n### 一、 整体架构设计 (Manifest V3)\n\nChrome 插件主要由以下几个核心模块组成：\n\n1.  **Background (Service Worker)**:\n    *   **职责**：负责所有与 LLM API 的网络请求（避免在网页端直接请求引发跨域 CORS 问题）；管理扩展的全局状态；处理快捷键和右键菜单。\n    *   **核心逻辑**：API 请求调度、API Key 安全读取、并发控制（避免触发大模型速率限制）。\n2.  **Content Scripts (内容脚本)**:\n    *   **职责**：注入到目标网页中，负责 DOM 树的解析、提取文本、监听鼠标划词事件（`mouseup`）、动态插入翻译后的 DOM 节点（对照显示）、渲染划词翻译的浮窗。\n3.  **Options UI (设置页)**:\n    *   **职责**：提供用户配置界面，输入 API Key、选择模型（如 `qwen-max`, `qwen-plus` 等）、配置自定义 Prompt 或翻译语言偏好。\n4.  **Popup UI (弹出页)**:\n    *   **职责**：点击浏览器右上角图标时弹出，提供快捷开关（开启/关闭整页翻译）、当前页面翻译进度等。\n5.  **Storage (`chrome.storage.local/sync`)**:\n    *   **职责**：持久化存储用户的配置信息（API Key、模型选择等）。\n\n---\n\n### 二、 核心功能实现思路\n\n#### 1. 整页对照式翻译 (Full-page Bilingual Translation)\n这是最核心也是最难的部分，难点在于**不破坏原网页排版**。\n\n*   **DOM 遍历与提取**：\n    *   编写一个递归遍历 DOM 树的函数，提取所有包含文本的有效节点（TextNode）。\n    *   **过滤规则**：跳过 `\u003cscript\u003e`, `\u003cstyle\u003e`, `\u003ccode\u003e`, `\u003cpre\u003e`, `\u003cnoscript\u003e` 等不需要翻译的标签；忽略空文本或纯符号文本。\n*   **分批合并请求 (Chunking \u0026 Batching)**：\n    *   不要一个段落发一次请求，也不要把整页 HTML 全发给大模型。\n    *   **策略**：提取出 10~20 个文本段落组成一个 Batch（用特定的分隔符如 `\\n###\\n` 连接，或者格式化为 JSON 数组），发送给 Background。\n*   **DOM 注入 (对照显示)**：\n    *   拿到 LLM 返回的翻译数组后，在原 TextNode 的父节点下，动态创建一个带有特定 Class（如 `my-translator-trans`）的 `\u003cspan\u003e` 或 `\u003cdiv\u003e`，并插入到原文本节点之后。\n    *   保留原有样式，仅对翻译文本添加区分样式（如灰色字体、下划线等）。\n\n#### 2. 基于上下文的划词取义 (Context-aware Selection)\n利用大模型理解上下文的能力，解决传统词典“一词多义”翻译生硬的问题。\n\n*   **事件监听**：在 Content Script 中监听 `mouseup` 事件。\n*   **上下文提取**：\n    *   获取选中的文本：`window.getSelection().toString()`。\n    *   获取上下文：获取当前选中节点所在的**父节点 (Parent Node)** 的完整文本内容（比如用户选中了一个词，我们把整个段落提取出来）。\n*   **Prompt 构造**：发送给大模型的内容不能仅是该词汇，而是特定的 Prompt。\n    *   *示例 Prompt*：“请作为翻译专家，翻译用户选中的词汇/短语：【{selected_text}】。它所在的上下文是：【{context_text}】。请给出在此上下文中最准确的释义，并简要解释。”\n*   **UI 渲染**：获取到结果后，使用 `getBoundingClientRect()` 计算选中区域的坐标，在页面最顶层绝对定位挂载一个 Shadow DOM（使用 Shadow DOM 可以防止受到原页面 CSS 的污染）来显示翻译浮窗。\n\n#### 3. 基于 API Key 的模型提供商配置 (默认 Qwen)\n为了灵活扩展并默认支持通义千问（Qwen），可以采用“兼容 OpenAI 接口格式”的策略。\n\n*   **配置项设计**：\n    *   Provider: 下拉菜单 (Qwen / OpenAI / Custom)\n    *   Base URL: 默认设为 `https://dashscope.aliyuncs.com/compatible-mode/v1`\n    *   API Key: 密码输入框\n    *   Model: 默认设为 `qwen-plus` 或 `qwen-turbo`\n*   **适配器模式 (Adapter Pattern)**：\n    *   因为阿里云的百炼平台（DashScope）已经完全兼容了 OpenAI 的接口格式，所以在 Background 中，你只需要写一套标准的 OpenAI API 请求代码即可。\n    *   当需要扩展给 DeepSeek、Kimi (Moonshot) 甚至本地 Ollama 使用时，只需让用户修改 Base URL 和 Model Name 即可，代码几乎无需改动。\n\n---\n\n### 三、 关键技术难点与解决方案\n\n1.  **大模型输出格式的稳定性**：\n    *   **问题**：你给模型发了 10 个段落，要求返回 10 个翻译，但模型可能合并了段落，或者返回了 9 个，导致 DOM 注入时错位。\n    *   **解决**：强制要求模型返回 **JSON 格式**。\n    *   *Prompt 示例*：`你是一个网页翻译器。请将以下 JSON 数组中的每一项文本翻译为中文，并返回相同长度的 JSON 数组，必须保持原有的索引顺序。输入：[\"Apple is red\", \"Banana is yellow\"] -\u003e 输出：[\"苹果是红色的\", \"香蕉是黄色的\"]。`\n2.  **避免破坏网页的交互 (如 React/Vue 生成的页面)**：\n    *   **问题**：直接修改 DOM (`innerHTML`) 会导致前端框架的 Virtual DOM 崩溃，页面点击失效。\n    *   **解决**：尽量使用 `Node.appendChild` 或 `Node.insertBefore` 在纯文本节点后面插入新的同级元素，而不是替换整个父容器的 HTML。\n3.  **大模型 API 请求频率限制 (Rate Limit)**：\n    *   网页包含大量文本，瞬间发起几十个请求会导致 API 封控。\n    *   **解决**：在 Background 中实现一个**请求队列 (Request Queue)**，控制并发数（如最多同时处理 3 个请求），当前进度的请求完成后再发起下一个。\n4.  **UI 样式隔离**：\n    *   划词翻译的浮窗一定要用 `Shadow DOM` 包裹，否则你写的浮窗样式会被页面的全局 CSS（如 `div { margin: 0 }`）严重干扰。\n\n---\n\n### 四、 开发步骤建议 (MVP路线)\n\n*   **Step 1：搭建骨架**\n    *   创建 `manifest.json` (V3)，配置好 `background`、`content_scripts`、`options_page` 及其权限 (`storage`, `activeTab`, 域名访问权限)。\n*   **Step 2：打通 Qwen API**\n    *   在 Options 页面做好 API Key 和 Model 的配置并保存到 `chrome.storage`。\n    *   在 Background 写一个测试函数，从 Storage 读取 Key，向 Qwen 发起一个 ChatCompletion 请求，确保网络联通。\n*   **Step 3：实现“划词取义” (最简单，建议先做)**\n    *   在 Content Script 监听划词事件 -\u003e 提取选中文本及父节点文本 -\u003e 通过 `chrome.runtime.sendMessage` 发给 Background -\u003e Background 请求 Qwen -\u003e 原路返回给 Content Script -\u003e 弹出一个简单的 `div` 显示结果。\n*   **Step 4：实现“整页提取与翻译” (核心与难点)**\n    *   写 DOM 遍历算法，提取文本。\n    *   组装 JSON 发给 Background，拿到返回的 JSON。\n    *   将翻译结果插入回原来的 DOM 树中。\n*   **Step 5：优化与打磨**\n    *   添加 Shadow DOM 隔离浮窗样式。\n    *   添加 Popup 页面来控制全局开关。\n    *   加入请求并发控制机制。\n\n如果你需要具体某一部分的代码示例（比如：**如何写完美的 DOM 提取算法**，或者 **如何用 Fetch 调用兼容 OpenAI 格式的 Qwen API**），可以告诉我，我可以为你提供详细的代码片段！",
+      "role": "model",
+      "finishReason": "STOP",
+      "tokenCount": 1981,
+      "parts": [{
+        "text": "开发一款类似“沉浸式翻译”的 Chrome "
+      }, {
+        "text": "插件是一个非常实用且充满挑战的项目。鉴于你需要实现整页对照、上下文划词以及自定义大模型 API"
+      }, {
+        "text": "（默认 Qwen），整体设计需要围绕 **Chrome 扩展的 Manifest V3 架构**、**DOM 节点精准"
+      }, {
+        "text": "操作**以及**大语言模型（LLM）的 Prompt 工程**来展开。\n\n以下是整体设计思路和技术落"
+      }, {
+        "text": "地方案：\n\n---\n\n### 一、 整体架构设计 (Manifest V3)\n\nChrome 插件主要由以下几个核心模块"
+      }, {
+        "text": "组成：\n\n1.  **Background (Service Worker)**:\n    *   **职责**：负责所有与"
+      }, {
+        "text": " LLM API 的网络请求（避免在网页端直接请求引发跨域 CORS 问题）；管理扩展的全局状态；"
+      }, {
+        "text": "处理快捷键和右键菜单。\n    *   **核心逻辑**：API 请求调度、API Key 安全"
+      }, {
+        "text": "读取、并发控制（避免触发大模型速率限制）。\n2.  **Content Scripts (内容脚本)**:\n"
+      }, {
+        "text": "    *   **职责**：注入到目标网页中，负责 DOM 树的解析、提取文本、监听"
+      }, {
+        "text": "鼠标划词事件（`mouseup`）、动态插入翻译后的 DOM 节点（对照显示）、渲染划词翻译"
+      }, {
+        "text": "的浮窗。\n3.  **Options UI (设置页)**:\n    *   **职责**：提供用户"
+      }, {
+        "text": "配置界面，输入 API Key、选择模型（如 `qwen-max`, `qwen-plus` 等）、配置自定义"
+      }, {
+        "text": " Prompt 或翻译语言偏好。\n4.  **Popup UI (弹出页)**:\n    *   **职责**：点击"
+      }, {
+        "text": "浏览器右上角图标时弹出，提供快捷开关（开启/关闭整页翻译）、当前页面翻译进度等。\n5.  **"
+      }, {
+        "text": "Storage (`chrome.storage.local/sync`)**:\n    *   **职责**：持久化存储用户的配置信息"
+      }, {
+        "text": "（API Key、模型选择等）。\n\n---\n\n### 二、 核心功能实现思路\n\n#### 1. 整页对照式"
+      }, {
+        "text": "翻译 (Full-page Bilingual Translation)\n这是最核心也是最难的部分，难点在于**不破坏原"
+      }, {
+        "text": "网页排版**。\n\n*   **DOM 遍历与提取**：\n    *   编写一个递归遍历"
+      }, {
+        "text": " DOM 树的函数，提取所有包含文本的有效节点（TextNode）。\n    *   **过滤规则**：跳"
+      }, {
+        "text": "过 `\u003cscript\u003e`, `\u003cstyle\u003e`, `\u003ccode\u003e`, `\u003cpre\u003e`, `\u003cnoscript\u003e` 等不需要翻译的标签；忽略空文本"
+      }, {
+        "text": "或纯符号文本。\n*   **分批合并请求 (Chunking \u0026 Batching)**：\n    *   不要一个"
+      }, {
+        "text": "段落发一次请求，也不要把整页 HTML 全发给大模型。\n    *   **策略**：提取"
+      }, {
+        "text": "出 10~20 个文本段落组成一个 Batch（用特定的分隔符如 `\\n###"
+      }, {
+        "text": "\\n` 连接，或者格式化为 JSON 数组），发送给 Background。\n*   **DOM 注入 (对照"
+      }, {
+        "text": "显示)**：\n    *   拿到 LLM 返回的翻译数组后，在原 TextNode 的父节点下，动态"
+      }, {
+        "text": "创建一个带有特定 Class（如 `my-translator-trans`）的 `\u003cspan\u003e` 或 `\u003cdiv\u003e`，并插入到"
+      }, {
+        "text": "原文本节点之后。\n    *   保留原有样式，仅对翻译文本添加区分样式（如灰色字体"
+      }, {
+        "text": "、下划线等）。\n\n#### 2. 基于上下文的划词取义 (Context-aware Selection)\n利用"
+      }, {
+        "text": "大模型理解上下文的能力，解决传统词典“一词多义”翻译生硬的问题。\n\n*   "
+      }, {
+        "text": "**事件监听**：在 Content Script 中监听 `mouseup` 事件。\n*   **上下文提取**：\n"
+      }, {
+        "text": "    *   获取选中的文本：`window.getSelection().toString()`。\n    *   获取上下文：获取当前"
+      }, {
+        "text": "选中节点所在的**父节点 (Parent Node)** 的完整文本内容（比如用户选中了一个词，我们把整个段落提取"
+      }, {
+        "text": "出来）。\n*   **Prompt 构造**：发送给大模型的内容不能仅是该词汇，而是特定的"
+      }, {
+        "text": " Prompt。\n    *   *示例 Prompt*：“请作为翻译专家，翻译用户选中的词汇/短"
+      }, {
+        "text": "语：【{selected_text}】。它所在的上下文是：【{context_text}】。请给出"
+      }, {
+        "text": "在此上下文中最准确的释义，并简要解释。”\n*   **UI 渲染**：获取到"
+      }, {
+        "text": "结果后，使用 `getBoundingClientRect()` 计算选中区域的坐标，在页面最顶层绝对定位挂载一个 Shadow"
+      }, {
+        "text": " DOM（使用 Shadow DOM 可以防止受到原页面 CSS 的污染）来显示翻译浮窗。\n\n#### 3. 基于"
+      }, {
+        "text": " API Key 的模型提供商配置 (默认 Qwen)\n为了灵活扩展并默认支持通义千问（"
+      }, {
+        "text": "Qwen），可以采用“兼容 OpenAI 接口格式”的策略。\n\n*   **配置项设计**：\n    *   "
+      }, {
+        "text": "Provider: 下拉菜单 (Qwen / OpenAI / Custom)\n    *   Base URL: 默认设为 `https://dashscope"
+      }, {
+        "text": ".aliyuncs.com/compatible-mode/v1`\n    *   API Key: 密码输入框\n    "
+      }, {
+        "text": "*   Model: 默认设为 `qwen-plus` 或 `qwen-turbo`\n*   "
+      }, {
+        "text": "**适配器模式 (Adapter Pattern)**：\n    *   因为阿里云的百炼平台（DashScope）已经完全"
+      }, {
+        "text": "兼容了 OpenAI 的接口格式，所以在 Background 中，你只需要写一套标准的 OpenAI API 请求代码即可。\n    *   "
+      }, {
+        "text": "当需要扩展给 DeepSeek、Kimi (Moonshot) 甚至本地 Ollama 使用时，只需让用户修改 Base URL 和 Model"
+      }, {
+        "text": " Name 即可，代码几乎无需改动。\n\n---\n\n### 三、 关键技术难点与解决方案\n\n1.  **大"
+      }, {
+        "text": "模型输出格式的稳定性**：\n    *   **问题**：你给模型发了 10 个段"
+      }, {
+        "text": "落，要求返回 10 个翻译，但模型可能合并了段落，或者返回了 9 个，导致 DOM "
+      }, {
+        "text": "注入时错位。\n    *   **解决**：强制要求模型返回 **JSON 格式**。\n    "
+      }, {
+        "text": "*   *Prompt 示例*：`你是一个网页翻译器。请将以下 JSON 数组中的每一项文本翻译为中文，"
+      }, {
+        "text": "并返回相同长度的 JSON 数组，必须保持原有的索引顺序。输入：[\"Apple is red\", \"Banana"
+      }, {
+        "text": " is yellow\"] -\u003e 输出：[\"苹果是红色的\", \"香蕉是黄色的\"]。`\n2.  **避免"
+      }, {
+        "text": "破坏网页的交互 (如 React/Vue 生成的页面)**：\n    *   **问题**：直接修改"
+      }, {
+        "text": " DOM (`innerHTML`) 会导致前端框架的 Virtual DOM 崩溃，页面点击失效。\n    *   **解决**：尽量使用"
+      }, {
+        "text": " `Node.appendChild` 或 `Node.insertBefore` 在纯文本节点后面插入新的同级元素，而不是替换整个"
+      }, {
+        "text": "父容器的 HTML。\n3.  **大模型 API 请求频率限制 (Rate Limit)**：\n    *   网页"
+      }, {
+        "text": "包含大量文本，瞬间发起几十个请求会导致 API 封控。\n    *   **解决**：在 Background 中"
+      }, {
+        "text": "实现一个**请求队列 (Request Queue)**，控制并发数（如最多同时处理 3 个请求），当前"
+      }, {
+        "text": "进度的请求完成后再发起下一个。\n4.  **UI 样式隔离**：\n    *   划"
+      }, {
+        "text": "词翻译的浮窗一定要用 `Shadow DOM` 包裹，否则你写的浮窗样式会被页面的全局 CSS（"
+      }, {
+        "text": "如 `div { margin: 0 }`）严重干扰。\n\n---\n\n### 四、 开发步骤建议 ("
+      }, {
+        "text": "MVP路线)\n\n*   **Step 1：搭建骨架**\n    *   创建 `manifest.json"
+      }, {
+        "text": "` (V3)，配置好 `background`、`content_scripts`、`options_page` 及其权限 ("
+      }, {
+        "text": "`storage`, `activeTab`, 域名访问权限)。\n*   **Step 2：打通 Qwen API**"
+      }, {
+        "text": "\n    *   在 Options 页面做好 API Key 和 Model 的配置并保存到 `chrome.storage`。\n    *   在"
+      }, {
+        "text": " Background 写一个测试函数，从 Storage 读取 Key，向 Qwen 发起一个 ChatCompletion 请求，确保网络联"
+      }, {
+        "text": "通。\n*   **Step 3：实现“划词取义” (最简单，建议先做)**\n    *"
+      }, {
+        "text": "   在 Content Script 监听划词事件 -\u003e 提取选中文本及父节点文本 -\u003e 通过 `chrome.runtime.sendMessage"
+      }, {
+        "text": "` 发给 Background -\u003e Background 请求 Qwen -\u003e 原路返回给 Content Script -\u003e 弹出一个简单的 `div` 显示"
+      }, {
+        "text": "结果。\n*   **Step 4：实现“整页提取与翻译” (核心与难点)**\n    *"
+      }, {
+        "text": "   写 DOM 遍历算法，提取文本。\n    *   组装 JSON 发给 Background，拿到返回的 JSON。"
+      }, {
+        "text": "\n    *   将翻译结果插入回原来的 DOM 树中。\n*   **Step 5：优化与"
+      }, {
+        "text": "打磨**\n    *   添加 Shadow DOM 隔离浮窗样式。\n    *   添加 Popup 页面来"
+      }, {
+        "text": "控制全局开关。\n    *   加入请求并发控制机制。\n\n如果你需要具体某一部分的代码示例（比如："
+      }, {
+        "text": "**如何写完美的 DOM 提取算法**，或者 **如何用 Fetch 调用兼容 OpenAI 格式的 Qwen API**），可以"
+      }, {
+        "text": "告诉我，我可以为你提供详细的代码片段！"
+      }, {
+        "text": "",
+        "thoughtSignature": "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"
+      }],
+      "createTime": "2026-10-13T03:08:49.858Z"
+    }, {
+      "driveDocument": {
+        "id": "1iGdmwR6vAvuMlrxVbwgxttUcV7Vty2zJ"
+      },
+      "role": "user",
+      "tokenCount": 2425,
+      "createTime": "2026-10-13T04:44:50.808Z"
+    }, {
+      "text": "设计整体构建思路。",
+      "role": "user",
+      "tokenCount": 6,
+      "createTime": "2026-10-13T04:44:50.808Z"
+    }, {
+      "text": "根据您提供的《Build Software with a Coding Agent: A General Method》指导原则，我们在让 Coding Agent 开发这款 Chrome 插件时，不能仅仅给出“功能需求”，而是要**构建严格的规则（Constitution）、定义独立的模块（Modules）、设定自动化关卡（Gate），并划定可独立测试的交付阶段（Phases）**。\n\n这样才能约束 Agent 的行为，确保代码不偏离设计、模块不互相污染。以下是为您设计的整体构建思路蓝图。\n\n---\n\n### 第一步：产品定义 (Product Definition)\n本系统是一个 Manifest V3 标准的 Chrome 扩展，包含三个核心功能：\n1. **整页对照式翻译**：提取页面 DOM 文本，批量请求翻译，原位置注入双语对照节点。\n2. **基于上下文的划词取义**：捕获划词及父节点上下文，请求大模型，并在 Shadow DOM 中渲染结果浮窗。\n3. **基于 API Key 的模型配置**：兼容 OpenAI API 格式，默认配置为阿里云百炼（DashScope）的 Qwen 模型系列。\n\n---\n\n### 第二步：划分独立模块 (Modules \u0026 Contracts)\n根据 Rule 2，我们将系统划分为边界清晰的模块，Agent 每次会话只能看到当前模块及其契约（接口）。\n\n| 模块名称 | 职责与能力边界 | 通信契约 (Contracts) |\n| :--- | :--- | :--- |\n| **`background`** | 纯后台逻辑。管理全局状态，处理所有外发 HTTP 网络请求。**禁止操作 DOM**。 | 监听并响应 `TranslationRequest`。 |\n| **`content`** | 纯前端逻辑。注入目标网页，负责 DOM 遍历、划词事件监听、Shadow DOM 注入渲染。**禁止直接发起网络请求**。 | 发送 `TranslationRequest`，接收 `TranslationResponse`。 |\n| **`options`** | 设置页面 UI。负责读取和保存用户配置（API Key、模型名称、系统 Prompt）。 | 与 `chrome.storage` 交互，使用 `Settings` 接口。 |\n| **`popup`** | 弹出窗口 UI。控制翻译的全局开关。 | 发送控制指令给 `background` 或当前 Tab。 |\n| **`core-llm`** | 纯逻辑层。将输入文本组装为 LLM Provider 对应的 Prompt 和请求体结构。 | 接收纯文本，返回标准化 JSON。 |\n\n---\n\n### 第三步：定义共享包与契约 (Shared Package \u0026 Types)\n根据 Rule 1 和 Rule 5，在写代码前定义共享类型。Agent 必须遵守这些契约。新建 `packages/shared/types.ts`：\n\n```typescript\n// 契约 1：配置数据模型\nexport interface ProviderSettings {\n  baseUrl: string; // 默认: https://dashscope.aliyuncs.com/compatible-mode/v1\n  apiKey: string;\n  model: string;   // 默认: qwen-plus\n}\n\n// 契约 2：划词/整页翻译请求\nexport interface TranslationRequest {\n  id: string;\n  type: \u0027full-page\u0027 | \u0027selection\u0027;\n  texts: string[];      // 需要翻译的文本数组\n  context?: string;     // 划词时所在的父节点文本\n}\n\n// 契约 3：翻译响应 (强制大模型返回严格对应的数组)\nexport interface TranslationResponse {\n  id: string;\n  success: boolean;\n  translatedTexts: string[];\n  errorMessage?: string;\n}\n```\n\n---\n\n### 第四步：编写宪法与关卡 (Constitution \u0026 Gate)\n为 Agent 设立无法绕过的自动化检查（Rule 7）。\n在 `package.json` 中定义严格的 Gate 脚本：\n```bash\n# Agent 在每次提交前必须确保此命令全绿通过\n\"gate\": \"tsc --noEmit \u0026\u0026 eslint . --max-warnings\u003d0 \u0026\u0026 vitest run --coverage \u0026\u0026 depcruise src\"\n```\n\n**宪法规则 (自动化执行)：**\n1. **类型检查**：开启 TypeScript `strict: true`。\n2. **依赖规则**：配置 `dependency-cruiser`，**禁止** `content` 模块导入 `core-llm`，强迫它们只能通过 `chrome.runtime.sendMessage` 通信。\n3. **复杂度限制**：在 ESLint 中配置 `complexity: [\"error\", 10]`，防止 Agent 写出几百行的 DOM 遍历面条代码。\n\n---\n\n### 第五步：起草核心架构决策记录 (ADRs)\n根据 Rule 6，为防止 Agent 自由发挥，提前写好以下 ADR，放入 `docs/adr/` 目录供 Agent 读取：\n\n*   **ADR-001: API 通信标准化**\n    *   **决策**：所有模型 API 均采用兼容 OpenAI ChatCompletions 的格式。\n    *   **原因**：Qwen（阿里云百炼）已完全兼容 OpenAI 接口。通过修改 `baseUrl` 即可零成本切换到其他模型，避免为不同厂商编写不同 SDK。\n*   **ADR-002: DOM 节点注入策略**\n    *   **决策**：整页翻译不修改原 TextNode 的 `nodeValue`，不在父节点使用 `innerHTML`，必须使用 `Node.parentNode.insertBefore` 在原文本节点后插入包含 `class\u003d\"my-translator-trans\"` 的 `\u003cfont\u003e` 或 `\u003cspan\u003e`。\n    *   **原因**：防止破坏 React/Vue 等现代前端框架的 Virtual DOM 映射。\n*   **ADR-003: 划词 UI 隔离机制**\n    *   **决策**：划词翻译的浮窗必须挂载在原生 Web Components 的 `ShadowRoot` 内。\n    *   **原因**：彻底隔离宿主页面的 CSS，防止浮窗样式被目标网站的全局样式破坏。\n\n---\n\n### 第六步：划分构建阶段 (Phases of Delivery)\n根据 Rule 3，不要按“前端/后端”分工，而是按“可运行的交付物”划分阶段，并依次让 Agent 完成。\n\n#### Phase 0: 基础设施 (Scaffold)\n*   **任务**：配置 Vite/Webpack 扩展脚手架，定义 `types.ts`，配置 ESLint 和 Vitest。\n*   **交付证明 (Proof)**：运行 `npm run gate` 呈现绿色通过状态（空项目）。\n\n#### Phase 1: 联通大模型基础链路\n*   **任务**：开发 `options` 页面保存 API Key。开发 `background` 读取配置并发送测试请求到 Qwen。\n*   **边界限制**：禁止碰触 `content` 脚本。\n*   **交付证明 (Proof)**：在设置页输入阿里云 API Key 点击“测试”，能够收到来自 Qwen 模型的问候语。\n\n#### Phase 2: 基于上下文的划词取义\n*   **任务**：在 `content` 中监听 `mouseup`，获取 `window.getSelection()` 及其 `parentNode.textContent`。构建 Prompt 发送给 `background`。收到结果后渲染 Shadow DOM 浮窗。\n*   **Prompt 设计限制**：“请翻译选中词汇：[{selection}]。它所在的上下文是：[{context}]。请给出结合上下文的准确释义。”\n*   **交付证明 (Proof)**：在任意网页选中一个多义词（如 \"apple\" 位于科技文章中），浮窗准确给出“苹果公司”而非“苹果（水果）”的解释。\n\n#### Phase 3: 整页翻译 - DOM 遍历与文本分块\n*   **任务**：开发一个纯函数用于遍历 DOM 树，跳过 `\u003cscript\u003e`/`\u003ccode\u003e` 等标签，提取有效 TextNode。**限制**：将提取到的文本分成大小为 N (如 20) 的批次 (Batch) 数组。\n*   **交付证明 (Proof)**：运行单元测试，输入一段模拟的 HTML 字符串，函数能准确输出被过滤后的干净文本数组，且数量与预期一致。\n\n#### Phase 4: 整页翻译 - 注入与并发控制\n*   **任务**：将分批后的文本数组发送给 Qwen（要求 Qwen 返回同等长度的 JSON 数组）。收到 JSON 后，将翻译文本注入回对应的 DOM 位置。\n*   **交付证明 (Proof)**：点击 Popup 上的“整页翻译”按钮，网页段落下方平滑出现中文对照翻译，且网页原有按钮点击仍生效。\n\n---\n\n### 第七步：启动 Agent 进行开发\n准备好以上文档后，您只需要按照 Phase 0 到 Phase 4 的顺序，每次将**单个 Phase 的任务和对应的模块代码**喂给您的 Coding Agent（如 Cursor / Claude Engineer）。\n\n当 Agent 提交代码时，运行 `npm run gate`。如果报错，直接把错误日志丢给 Agent 修复。\n只有通过当前阶段的 Gate 测试并验证 Deliverable 后，再进入下一个 Phase。这样，插件的开发就会像流水线一样精准且可控。",
+      "role": "model",
+      "finishReason": "STOP",
+      "tokenCount": 1994,
+      "parts": [{
+        "text": "根据您提供的《Build Software with a Coding Agent: A General Method》指导原则"
+      }, {
+        "text": "，我们在让 Coding Agent 开发这款 Chrome 插件时，不能仅仅给出“功能需求”，而是要**构建严格的规则（Constitution"
+      }, {
+        "text": "）、定义独立的模块（Modules）、设定自动化关卡（Gate），并划定可独立测试的交付阶段（Phases）**"
+      }, {
+        "text": "。\n\n这样才能约束 Agent 的行为，确保代码不偏离设计、模块不互相污染。以下是为您"
+      }, {
+        "text": "设计的整体构建思路蓝图。\n\n---\n\n### 第一步：产品定义 (Product Definition)\n本系统是一个"
+      }, {
+        "text": " Manifest V3 标准的 Chrome 扩展，包含三个核心功能：\n1. **整页对照式翻译**：提取"
+      }, {
+        "text": "页面 DOM 文本，批量请求翻译，原位置注入双语对照节点。\n2. **基于上下文的划词取义"
+      }, {
+        "text": "**：捕获划词及父节点上下文，请求大模型，并在 Shadow DOM 中渲染结果浮窗。\n3."
+      }, {
+        "text": " **基于 API Key 的模型配置**：兼容 OpenAI API 格式，默认配置为阿里云百炼（DashScope）的 Qwen"
+      }, {
+        "text": " 模型系列。\n\n---\n\n### 第二步：划分独立模块 (Modules \u0026 Contracts)\n根据 Rule 2，我们将"
+      }, {
+        "text": "系统划分为边界清晰的模块，Agent 每次会话只能看到当前模块及其契约（接口）。\n\n| 模块名称"
+      }, {
+        "text": " | 职责与能力边界 | 通信契约 (Contracts) |\n| :--- | :--- | :"
+      }, {
+        "text": "--- |\n| **`background`** | 纯后台逻辑。管理全局状态，处理所有外发 HTTP"
+      }, {
+        "text": " 网络请求。**禁止操作 DOM**。 | 监听并响应 `TranslationRequest`。 |\n| **`content`** |"
+      }, {
+        "text": " 纯前端逻辑。注入目标网页，负责 DOM 遍历、划词事件监听、Shadow DOM 注入渲染"
+      }, {
+        "text": "。**禁止直接发起网络请求**。 | 发送 `TranslationRequest`，接收 `TranslationResponse`。 |\n"
+      }, {
+        "text": "| **`options`** | 设置页面 UI。负责读取和保存用户配置（API Key、模型名称、系统"
+      }, {
+        "text": " Prompt）。 | 与 `chrome.storage` 交互，使用 `Settings` 接口。 |\n| **"
+      }, {
+        "text": "`popup`** | 弹出窗口 UI。控制翻译的全局开关。 | 发送控制指令给 `background` 或"
+      }, {
+        "text": "当前 Tab。 |\n| **`core-llm`** | 纯逻辑层。将输入文本组"
+      }, {
+        "text": "装为 LLM Provider 对应的 Prompt 和请求体结构。 | 接收纯文本，返回标准化 JSON。 |\n\n---\n\n### 第三"
+      }, {
+        "text": "步：定义共享包与契约 (Shared Package \u0026 Types)\n根据 Rule 1 和 Rule 5，在"
+      }, {
+        "text": "写代码前定义共享类型。Agent 必须遵守这些契约。新建 `packages/shared/types.ts"
+      }, {
+        "text": "`：\n\n```typescript\n// 契约 1：配置数据模型\nexport interface ProviderSettings {\n  baseUrl"
+      }, {
+        "text": ": string; // 默认: https://dashscope.aliyuncs.com/compatible-mode/v1"
+      }, {
+        "text": "\n  apiKey: string;\n  model: string;   // 默认: qwen-plus\n}\n\n"
+      }, {
+        "text": "// 契约 2：划词/整页翻译请求\nexport interface TranslationRequest {\n  id: string;\n  type"
+      }, {
+        "text": ": \u0027full-page\u0027 | \u0027selection\u0027;\n  texts: string[];      // 需要翻译的文本数组\n"
+      }, {
+        "text": "  context?: string;     // 划词时所在的父节点文本\n}\n\n// 契约 3"
+      }, {
+        "text": "：翻译响应 (强制大模型返回严格对应的数组)\nexport interface TranslationResponse {\n  id: string;\n  success: boolean"
+      }, {
+        "text": ";\n  translatedTexts: string[];\n  errorMessage?: string;\n}\n```\n\n---\n\n### 第四步：编写"
+      }, {
+        "text": "宪法与关卡 (Constitution \u0026 Gate)\n为 Agent 设立无法绕过的自动化检查（Rule 7）。"
+      }, {
+        "text": "\n在 `package.json` 中定义严格的 Gate 脚本：\n```bash\n# Agent 在每次提交前必须确保"
+      }, {
+        "text": "此命令全绿通过\n\"gate\": \"tsc --noEmit \u0026\u0026 eslint . --max-warnings\u003d0 \u0026\u0026 vitest run --coverage"
+      }, {
+        "text": " \u0026\u0026 depcruise src\"\n```\n\n**宪法规则 (自动化执行)：**\n1. **类型检查**"
+      }, {
+        "text": "：开启 TypeScript `strict: true`。\n2. **依赖规则**：配置 `dependency-cruiser`，"
+      }, {
+        "text": "**禁止** `content` 模块导入 `core-llm`，强迫它们只能通过 `chrome.runtime."
+      }, {
+        "text": "sendMessage` 通信。\n3. **复杂度限制**：在 ESLint 中配置 `complexity: [\"error\", 10]`，"
+      }, {
+        "text": "防止 Agent 写出几百行的 DOM 遍历面条代码。\n\n---\n\n### 第五步：起草核心架构决策记录 ("
+      }, {
+        "text": "ADRs)\n根据 Rule 6，为防止 Agent 自由发挥，提前写好以下 ADR，放入 `docs"
+      }, {
+        "text": "/adr/` 目录供 Agent 读取：\n\n*   **ADR-001: API 通信标准化"
+      }, {
+        "text": "**\n    *   **决策**：所有模型 API 均采用兼容 OpenAI ChatCompletions 的格式。"
+      }, {
+        "text": "\n    *   **原因**：Qwen（阿里云百炼）已完全兼容 OpenAI 接口。通过修改"
+      }, {
+        "text": " `baseUrl` 即可零成本切换到其他模型，避免为不同厂商编写不同 SDK。\n*   **AD"
+      }, {
+        "text": "R-002: DOM 节点注入策略**\n    *   **决策**：整页翻译不"
+      }, {
+        "text": "修改原 TextNode 的 `nodeValue`，不在父节点使用 `innerHTML`，必须使用 `Node.parentNode"
+      }, {
+        "text": ".insertBefore` 在原文本节点后插入包含 `class\u003d\"my-translator-trans\"` 的 `\u003cfont\u003e` 或"
+      }, {
+        "text": " `\u003cspan\u003e`。\n    *   **原因**：防止破坏 React/Vue 等现代前端框架的 Virtual DOM 映射"
+      }, {
+        "text": "。\n*   **ADR-003: 划词 UI 隔离机制**\n    *   **决策**："
+      }, {
+        "text": "划词翻译的浮窗必须挂载在原生 Web Components 的 `ShadowRoot` 内。\n    *   **原因**：彻底"
+      }, {
+        "text": "隔离宿主页面的 CSS，防止浮窗样式被目标网站的全局样式破坏。\n\n---\n\n### 第"
+      }, {
+        "text": "六步：划分构建阶段 (Phases of Delivery)\n根据 Rule 3，不要按“前端/后端"
+      }, {
+        "text": "”分工，而是按“可运行的交付物”划分阶段，并依次让 Agent 完成。\n\n#### Phase 0:"
+      }, {
+        "text": " 基础设施 (Scaffold)\n*   **任务**：配置 Vite/Webpack 扩展脚手架，定义 `types"
+      }, {
+        "text": ".ts`，配置 ESLint 和 Vitest。\n*   **交付证明 (Proof)**：运行 `npm"
+      }, {
+        "text": " run gate` 呈现绿色通过状态（空项目）。\n\n#### Phase 1: 联通大模型基础链路"
+      }, {
+        "text": "\n*   **任务**：开发 `options` 页面保存 API Key。开发 `background` 读取配置并发送测试请求到"
+      }, {
+        "text": " Qwen。\n*   **边界限制**：禁止碰触 `content` 脚本。\n*   **交付证明"
+      }, {
+        "text": " (Proof)**：在设置页输入阿里云 API Key 点击“测试”，能够收到来自 Qwen 模型的问候语。\n\n#### Phase"
+      }, {
+        "text": " 2: 基于上下文的划词取义\n*   **任务**：在 `content` 中监听 `mouseup`，"
+      }, {
+        "text": "获取 `window.getSelection()` 及其 `parentNode.textContent`。构建 Prompt 发送给 `background`。"
+      }, {
+        "text": "收到结果后渲染 Shadow DOM 浮窗。\n*   **Prompt 设计限制**：“请翻译选中词汇：[{"
+      }, {
+        "text": "selection}]。它所在的上下文是：[{context}]。请给出结合上下文的准确释义。”\n*   **交付证明"
+      }, {
+        "text": " (Proof)**：在任意网页选中一个多义词（如 \"apple\" 位于科技文章中），浮窗准确给出"
+      }, {
+        "text": "“苹果公司”而非“苹果（水果）”的解释。\n\n#### Phase 3: 整页翻译 -"
+      }, {
+        "text": " DOM 遍历与文本分块\n*   **任务**：开发一个纯函数用于遍历 DOM 树，跳"
+      }, {
+        "text": "过 `\u003cscript\u003e`/`\u003ccode\u003e` 等标签，提取有效 TextNode。**限制**：将提取到的文本分成"
+      }, {
+        "text": "大小为 N (如 20) 的批次 (Batch) 数组。\n*   **交付证明"
+      }, {
+        "text": " (Proof)**：运行单元测试，输入一段模拟的 HTML 字符串，函数能准确输出被过滤后的干净"
+      }, {
+        "text": "文本数组，且数量与预期一致。\n\n#### Phase 4: 整页翻译 - 注入与并发控制\n*   **任务"
+      }, {
+        "text": "**：将分批后的文本数组发送给 Qwen（要求 Qwen 返回同等长度的 JSON 数组）。"
+      }, {
+        "text": "收到 JSON 后，将翻译文本注入回对应的 DOM 位置。\n*   **交付证明 (Proof)**：点击"
+      }, {
+        "text": " Popup 上的“整页翻译”按钮，网页段落下方平滑出现中文对照翻译，且网页原有按钮点击仍生效。"
+      }, {
+        "text": "\n\n---\n\n### 第七步：启动 Agent 进行开发\n准备好以上文档后，您只需要按照 Phase 0 到"
+      }, {
+        "text": " Phase 4 的顺序，每次将**单个 Phase 的任务和对应的模块代码**喂给您的 Coding Agent（"
+      }, {
+        "text": "如 Cursor / Claude Engineer）。\n\n当 Agent 提交代码时，运行 `npm run gate`。如果报错，"
+      }, {
+        "text": "直接把错误日志丢给 Agent 修复。\n只有通过当前阶段的 Gate 测试并验证 Deliverable 后，再"
+      }, {
+        "text": "进入下一个 Phase。这样，插件的开发就会像流水线一样精准且可控。"
+      }, {
+        "text": "",
+        "thoughtSignature": "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"
+      }],
+      "createTime": "2026-10-13T04:45:05.593Z"
+    }, {
+      "text": "设计整体的构建计划。",
+      "role": "user",
+      "tokenCount": 7,
+      "createTime": "2026-10-13T04:52:51.654Z"
+    }, {
+      "text": "为了让 Coding Agent 能够精准、不跑偏地完成这个 Chrome 插件的开发，我们需要将上文的“设计蓝图”转化为一份**可执行的构建计划（Build Plan）**。\n\n这份计划将开发过程划分为 5 个 Sprint（冲刺阶段）。在每个阶段，你只需要给 Agent 设定具体的上下文、明确的任务和验收标准。\n\n以下是整体构建计划：\n\n---\n\n### 准备工作 (Sprint 0)：基础设施与“宪法”搭建\n\n本阶段不写业务代码，只建立约束规则和类型契约。让 Agent 在受控环境中工作。\n\n*   **交付物**：一个可编译的空 Chrome 扩展模板，以及完善的代码检查器 (Gate)。\n*   **给 Agent 的输入指令**：\n    \u003e \"初始化一个 Chrome Extension Manifest V3 项目。使用 TypeScript 和 Vite (或 CRXJS)。配置 Vitest 作为单元测试框架，ESLint 作为代码规范。在 `packages/shared/types.ts` 中定义 `ProviderSettings`, `TranslationRequest`, `TranslationResponse` 的接口。在 `package.json` 中配置一条 `npm run gate` 命令，依次运行 tsc, eslint 和 vitest。必须确保 `npm run gate` 通过。\"\n*   **验收标准 (Proof)**：\n    *   [ ] `npm run gate` 在终端输出绿色成功信息。\n    *   [ ] 生成了 `dist` 目录，能被 Chrome 以“解压的扩展程序”模式加载，且不报错。\n\n---\n\n### 第一阶段 (Sprint 1)：配置中心与大模型通信基建\n\n本阶段打通插件与外部世界（大模型 API）的连接，为后续翻译提供基础服务。\n\n*   **交付物**：Options 设置页、本地存储管理、Background API 客户端。\n*   **给 Agent 的输入指令**：\n    \u003e \"当前处于 Sprint 1。你的任务：1. 编写 `options.html` 和对应的 TS 脚本，提供 API Key、Base URL (默认兼容 Qwen) 和 Model 名字的输入框，并保存到 `chrome.storage.local`。2. 在 Background Service Worker 中编写 `llm-client.ts`，从 storage 读取配置，提供一个 `fetchTranslation(prompt)` 方法。请遵循 ADR-001，严格使用 OpenAI ChatCompletion API 格式构造请求。编写一个 \u0027测试连接\u0027 按钮在 Options 页面来验证调用。\"\n*   **验收标准 (Proof)**：\n    *   [ ] Options 页面 UI 可用，刷新页面后保存的数据不丢失。\n    *   [ ] 填入阿里云百炼 (Qwen) 的 API Key，点击“测试连接”，能够成功收到大模型的回复并展示在页面上。\n    *   [ ] `npm run gate` 依然通过。\n\n---\n\n### 第二阶段 (Sprint 2)：划词取义功能 (前端隔离UI)\n\n本阶段实现划词翻译。重点是处理前端事件、获取上下文以及隔离 UI 样式。\n\n*   **交付物**：监听鼠标划词的 Content Script、基于 Shadow DOM 的翻译浮窗。\n*   **给 Agent 的输入指令**：\n    \u003e \"当前处于 Sprint 2。目标：实现上下文划词翻译。1. 在 Content Script 中监听 `mouseup` 事件，提取选中文本及 `parentNode` 里的完整上下文。2. 组装特定的 Prompt 通过 `chrome.runtime.sendMessage` 发给 Background 进行翻译。3. 编写一个基于 `ShadowRoot` 的 UI 组件挂载到页面最顶层，用来展示翻译结果。遵循 ADR-003，保证 UI 样式不受宿主页面影响。\"\n*   **验收标准 (Proof)**：\n    *   [ ] 在任意复杂的网页（如 GitHub, Reddit）中双击选中一个单词。\n    *   [ ] 网页旁边弹出一个干净的浮窗，显示包含“根据上下文”的准确解释。\n    *   [ ] 浮窗的样式没有因为目标网站的 CSS 而发生变形。\n\n---\n\n### 第三阶段 (Sprint 3)：DOM 解析与重组核心逻辑 (纯逻辑)\n\n本阶段是整页翻译的核心难点。为了防止 Agent 写出破坏网页的面条代码，**禁止直接操作 DOM**，而是让 Agent 写纯函数并用单元测试覆盖。\n\n*   **交付物**：DOM 解析器 (`dom-parser.ts`)，文本分块器 (`batch-processor.ts`)。\n*   **给 Agent 的输入指令**：\n    \u003e \"当前处于 Sprint 3。目标：编写 DOM 解析的纯粹业务逻辑。1. 编写 `extractTextNodes(root: HTMLElement): Text[]` 函数，遍历 DOM，过滤掉 script/style/代码块，返回需要翻译的纯文本节点数组。2. 编写 `chunkArray(nodes: Text[], batchSize: number)` 函数，将提取的节点分组。此阶段不需要与真实网页交互，**请遵循 Test-Driven Development (TDD)**，为这两个函数编写完善的 Vitest 单元测试。\"\n*   **验收标准 (Proof)**：\n    *   [ ] 提供一段模拟的包含各种脏标签的 HTML 字符串测试用例。\n    *   [ ] `npm run test` (Vitest) 单元测试 100% 通过，断言提取出的文本节点数量和内容完全正确。\n\n---\n\n### 第四阶段 (Sprint 4)：整页对照注入与系统组装\n\n本阶段将前面所有成果拼接在一起，实现最终的“沉浸式整页双语”效果。\n\n*   **交付物**：Popup 控制页、DOM 注入器、并发请求控制。\n*   **给 Agent 的输入指令**：\n    \u003e \"当前处于 Sprint 4。目标：完成整页双语翻译功能。1. 开发 `popup.html` 作为扩展面板，包含一个‘翻译当前网页’的开关。2. 在 Content Script 中组合 Sprint 3 的解析器，拿到分批后的节点集合，向 Background 批量发送 `TranslationRequest`。3. 收到 JSON 翻译数组后，遵循 ADR-002，使用 `parentNode.insertBefore` 在原 TextNode 后插入包含 `class\u003d\"my-translator-trans\"` 的元素。4. 请在 Background 实现简单的并发队列控制，最多同时发出 3 个 API 请求。\"\n*   **验收标准 (Proof)**：\n    *   [ ] 点击浏览器右上角扩展图标，点击“开启翻译”。\n    *   [ ] 页面段落按批次逐步在下方出现中文对照。\n    *   [ ] 网页原本的点击事件（如按钮、链接）、排版不崩溃。\n\n---\n\n### 构建执行检查表 (Checklist)\n\n在每完成一个 Sprint 并准备开始下一个 Sprint 时，作为人类审查者，请对照以下清单进行确认：\n\n- [ ] Agent 提交的代码只修改了当前 Sprint 涉及的模块（没有越界）。\n- [ ] 运行了 `npm run gate`，Lint 规范和类型检查无任何警告。\n- [ ] 实际运行了扩展，并完成了该阶段的 Proof（手动测试）。\n- [ ] 若发生架构上的新增决策（例如发现某种特殊的 DOM 节点无法翻译，决定采用新规则），已更新 `docs/adr/`。\n\n**为什么这样计划有效？**\n通过把“大且模糊”的“写个翻译插件”目标，拆解成了“纯函数+单元测试 (Sprint 3)”和“UI隔离+事件监听 (Sprint 2)”等极其具体的微任务，Coding Agent 可以最大程度发挥其**上下文聚焦时代码准确率极高**的优势，避免产生幻觉或把项目结构写乱。",
+      "role": "model",
+      "finishReason": "STOP",
+      "tokenCount": 1674,
+      "parts": [{
+        "text": "为了让 Coding Agent "
+      }, {
+        "text": "能够精准、不跑偏地完成这个 Chrome 插件的开发，我们需要将上文的“设计蓝图”转化为一份"
+      }, {
+        "text": "**可执行的构建计划（Build Plan）**。\n\n这份计划将开发过程划分为 5 个 Sprint"
+      }, {
+        "text": "（冲刺阶段）。在每个阶段，你只需要给 Agent 设定具体的上下文、明确的任务和验收标准。\n\n以下是整体"
+      }, {
+        "text": "构建计划：\n\n---\n\n### 准备工作 (Sprint 0)：基础设施与“宪法”搭建\n\n本"
+      }, {
+        "text": "阶段不写业务代码，只建立约束规则和类型契约。让 Agent 在受控环境中工作。\n\n*   **交付"
+      }, {
+        "text": "物**：一个可编译的空 Chrome 扩展模板，以及完善的代码检查器 (Gate)。\n*   **"
+      }, {
+        "text": "给 Agent 的输入指令**：\n    \u003e \"初始化一个 Chrome Extension Manifest V3 项目。使用 TypeScript 和 Vite ("
+      }, {
+        "text": "或 CRXJS)。配置 Vitest 作为单元测试框架，ESLint 作为代码规范。在 `packages/shared"
+      }, {
+        "text": "/types.ts` 中定义 `ProviderSettings`, `TranslationRequest`, `TranslationResponse` 的接口。在 `package.json` 中"
+      }, {
+        "text": "配置一条 `npm run gate` 命令，依次运行 tsc, eslint 和 vitest。必须确保 `npm run gate` 通过"
+      }, {
+        "text": "。\"\n*   **验收标准 (Proof)**：\n    *   [ ] `npm run gate` 在终端"
+      }, {
+        "text": "输出绿色成功信息。\n    *   [ ] 生成了 `dist` 目录，能被 Chrome 以“解"
+      }, {
+        "text": "压的扩展程序”模式加载，且不报错。\n\n---\n\n### 第一阶段 (Sprint 1)：配置中心"
+      }, {
+        "text": "与大模型通信基建\n\n本阶段打通插件与外部世界（大模型 API）的连接，为"
+      }, {
+        "text": "后续翻译提供基础服务。\n\n*   **交付物**：Options 设置页、本地存储管理、Background API"
+      }, {
+        "text": " 客户端。\n*   **给 Agent 的输入指令**：\n    \u003e \"当前处于 Sprint 1。你的"
+      }, {
+        "text": "任务：1. 编写 `options.html` 和对应的 TS 脚本，提供 API Key、Base URL (默认"
+      }, {
+        "text": "兼容 Qwen) 和 Model 名字的输入框，并保存到 `chrome.storage.local`。2. 在"
+      }, {
+        "text": " Background Service Worker 中编写 `llm-client.ts`，从 storage 读取配置，提供一个 `fetchTranslation(prompt"
+      }, {
+        "text": ")` 方法。请遵循 ADR-001，严格使用 OpenAI ChatCompletion API 格式构造请求。编写一个 \u0027测试"
+      }, {
+        "text": "连接\u0027 按钮在 Options 页面来验证调用。\"\n*   **验收标准 (Proof)**：\n    *"
+      }, {
+        "text": "   [ ] Options 页面 UI 可用，刷新页面后保存的数据不丢失。\n    *   [ ] "
+      }, {
+        "text": "填入阿里云百炼 (Qwen) 的 API Key，点击“测试连接”，能够成功收到大模型的回复并"
+      }, {
+        "text": "展示在页面上。\n    *   [ ] `npm run gate` 依然通过。\n\n---\n\n###"
+      }, {
+        "text": " 第二阶段 (Sprint 2)：划词取义功能 (前端隔离UI)\n\n本阶段实现划词翻译。"
+      }, {
+        "text": "重点是处理前端事件、获取上下文以及隔离 UI 样式。\n\n*   **交付物**：监听鼠标划词的 Content Script"
+      }, {
+        "text": "、基于 Shadow DOM 的翻译浮窗。\n*   **给 Agent 的输入指令**：\n    \u003e \""
+      }, {
+        "text": "当前处于 Sprint 2。目标：实现上下文划词翻译。1. 在 Content Script 中监听 `mouseup` 事件"
+      }, {
+        "text": "，提取选中文本及 `parentNode` 里的完整上下文。2. 组装特定的 Prompt 通过 `chrome.runtime.sendMessage"
+      }, {
+        "text": "` 发给 Background 进行翻译。3. 编写一个基于 `ShadowRoot` 的 UI 组件挂载到页面最顶层，用来"
+      }, {
+        "text": "展示翻译结果。遵循 ADR-003，保证 UI 样式不受宿主页面影响。\"\n*   "
+      }, {
+        "text": "**验收标准 (Proof)**：\n    *   [ ] 在任意复杂的网页（如 GitHub, Reddit）中双击选中"
+      }, {
+        "text": "一个单词。\n    *   [ ] 网页旁边弹出一个干净的浮窗，显示包含“根据上下文"
+      }, {
+        "text": "”的准确解释。\n    *   [ ] 浮窗的样式没有因为目标网站的 CSS 而发生变形"
+      }, {
+        "text": "。\n\n---\n\n### 第三阶段 (Sprint 3)：DOM 解析与重组核心逻辑 (纯逻辑)\n\n本阶段是"
+      }, {
+        "text": "整页翻译的核心难点。为了防止 Agent 写出破坏网页的面条代码，**禁止直接操作 DOM**，而是"
+      }, {
+        "text": "让 Agent 写纯函数并用单元测试覆盖。\n\n*   **交付物**：DOM 解析器 (`dom-"
+      }, {
+        "text": "parser.ts`)，文本分块器 (`batch-processor.ts`)。\n*   **给 Agent 的输入指令**：\n"
+      }, {
+        "text": "    \u003e \"当前处于 Sprint 3。目标：编写 DOM 解析的纯粹业务逻辑。1. 编写 `extract"
+      }, {
+        "text": "TextNodes(root: HTMLElement): Text[]` 函数，遍历 DOM，过滤掉 script/style/代码块，返回"
+      }, {
+        "text": "需要翻译的纯文本节点数组。2. 编写 `chunkArray(nodes: Text[], batchSize: number)"
+      }, {
+        "text": "` 函数，将提取的节点分组。此阶段不需要与真实网页交互，**请遵循 Test-Driven Development (TDD"
+      }, {
+        "text": ")**，为这两个函数编写完善的 Vitest 单元测试。\"\n*   **验收标准 (Proof)**：\n    "
+      }, {
+        "text": "*   [ ] 提供一段模拟的包含各种脏标签的 HTML 字符串测试用例。\n    *   [ ]"
+      }, {
+        "text": " `npm run test` (Vitest) 单元测试 100% 通过，断言提取出的文本节点数量和内容"
+      }, {
+        "text": "完全正确。\n\n---\n\n### 第四阶段 (Sprint 4)：整页对照注入与系统组装\n\n本"
+      }, {
+        "text": "阶段将前面所有成果拼接在一起，实现最终的“沉浸式整页双语”效果。\n\n*   **交付"
+      }, {
+        "text": "物**：Popup 控制页、DOM 注入器、并发请求控制。\n*   **给 Agent 的输入指令**："
+      }, {
+        "text": "\n    \u003e \"当前处于 Sprint 4。目标：完成整页双语翻译功能。1. 开发 `popup.html` 作为"
+      }, {
+        "text": "扩展面板，包含一个‘翻译当前网页’的开关。2. 在 Content Script 中组合 Sprint 3 的解析器"
+      }, {
+        "text": "，拿到分批后的节点集合，向 Background 批量发送 `TranslationRequest`。3. 收到 JSON 翻译数组"
+      }, {
+        "text": "后，遵循 ADR-002，使用 `parentNode.insertBefore` 在原 TextNode 后插入包含 `class\u003d\"my-translator-"
+      }, {
+        "text": "trans\"` 的元素。4. 请在 Background 实现简单的并发队列控制，最多同时发出 3 个 API 请求。\""
+      }, {
+        "text": "\n*   **验收标准 (Proof)**：\n    *   [ ] 点击浏览器右上角扩展图标，点击“开启"
+      }, {
+        "text": "翻译”。\n    *   [ ] 页面段落按批次逐步在下方出现中文对照。\n    *   [ ]"
+      }, {
+        "text": " 网页原本的点击事件（如按钮、链接）、排版不崩溃。\n\n---\n\n### 构建执行检查"
+      }, {
+        "text": "表 (Checklist)\n\n在每完成一个 Sprint 并准备开始下一个 Sprint 时，作为人类审查者，请对照"
+      }, {
+        "text": "以下清单进行确认：\n\n- [ ] Agent 提交的代码只修改了当前 Sprint 涉及的模块（没有越"
+      }, {
+        "text": "界）。\n- [ ] 运行了 `npm run gate`，Lint 规范和类型检查无任何警告。\n- [ ]"
+      }, {
+        "text": " 实际运行了扩展，并完成了该阶段的 Proof（手动测试）。\n- [ ] 若发生架构上的"
+      }, {
+        "text": "新增决策（例如发现某种特殊的 DOM 节点无法翻译，决定采用新规则），已更新 `docs/adr/"
+      }, {
+        "text": "`。\n\n**为什么这样计划有效？**\n通过把“大且模糊”的“写个翻译插件”目标"
+      }, {
+        "text": "，拆解成了“纯函数+单元测试 (Sprint 3)”和“UI隔离+事件监听 (Sprint 2)”"
+      }, {
+        "text": "等极其具体的微任务，Coding Agent 可以最大程度发挥其**上下文聚焦时代码准确率极高**的优势，避免"
+      }, {
+        "text": "产生幻觉或把项目结构写乱。"
+      }, {
+        "text": "",
+        "thoughtSignature": "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"
+      }],
+      "createTime": "2026-10-13T04:53:03.145Z"
+    }, {
+      "text": "目录结构如何设计？重新设计一个项目名。",
+      "role": "user",
+      "tokenCount": 6,
+      "createTime": "2026-10-13T04:55:31.461Z"
+    }, {
+      "text": "为这款主打“沉浸式整页双语”和“基于上下文划词”的插件重新设计项目名，以及一套适合 Coding Agent 开发的、严格模块化的目录结构。\n\n### 一、 重新设计项目名\n\n为了凸显**“双语对照”、“上下文感知”**和**“不破坏沉浸感”**这三个核心价值，这里提供几个备选名称及寓意：\n\n1.  **TwinRead (中文名：双轨翻译 / 双生阅读)** —— *【推荐】*\n    *   **寓意**：Twin 代表双胞胎、成双成对，完美契合“整页对照式、原文与译文并存”的核心视觉形态。\n    *   **开发代号**：`twin-read-ext`\n2.  **Contexta (中文名：境译)**\n    *   **寓意**：由 Context（上下文）演变而来，强调此插件的最大特色——基于上下文语境的精准翻译（划词取义），告别机械的字典式翻译。\n    *   **开发代号**：`contexta-translator`\n3.  **EchoLingua (中文名：回声翻译)**\n    *   **寓意**：译文就像是原文的回声，如影随形地附着在原文下方，自然且不显突兀。\n    *   **开发代号**：`echolingua-ext`\n\n*后续的目录结构展示，我们将以 **TwinRead** 作为项目名来构建。*\n\n---\n\n### 二、 整体目录结构设计 (基于 Vite + CRXJS)\n\n为了契合《Build Software with a Coding Agent》中的**Rule 2 (模块独立)**和**Rule 5 (共享逻辑)**，我们采用基于 Vite 的现代 Chrome 插件标准目录，并引入严格的边界划分。\n\n```text\ntwin-read-ext/\n├── docs/                       # 项目文档 (留给 Agent 阅读)\n│   └── adr/                    # Rule 6: 架构决策记录 (如 001-api-format.md)\n│\n├── src/                        # 源代码核心区 (严格划分模块)\n│   │\n│   ├── background/             # 【模块 1：后台服务】(无 DOM 访问权)\n│   │   ├── index.ts            # Service Worker 入口\n│   │   ├── llm-client.ts       # LLM API 客户端 (兼容 OpenAI 格式)\n│   │   └── request-queue.ts    # 并发请求控制逻辑\n│   │\n│   ├── content/                # 【模块 2：内容脚本】(注入网页，仅 DOM 操作)\n│   │   ├── index.ts            # 内容脚本入口 (监听事件，协调逻辑)\n│   │   ├── dom-parser.ts       # 纯函数：遍历与提取过滤 TextNode\n│   │   ├── batch-processor.ts  # 纯函数：将文本分块打包\n│   │   ├── injector.ts         # 纯函数：将翻译结果安全注入 DOM\n│   │   └── shadow-ui/          # 划词翻译的 Shadow DOM 浮窗组件\n│   │       ├── tooltip.ts\n│   │       └── tooltip.css\n│   │\n│   ├── options/                # 【模块 3：设置页面】(用户配置)\n│   │   ├── index.html\n│   │   ├── index.ts\n│   │   └── style.css\n│   │\n│   ├── popup/                  # 【模块 4：弹出面板】(快捷开关)\n│   │   ├── index.html\n│   │   ├── index.ts\n│   │   └── style.css\n│   │\n│   └── shared/                 # 【共享包】(Rule 1 \u0026 5: 契约与公共逻辑)\n│       ├── types.ts            # 核心契约 (如 Request/Response 接口)\n│       ├── constants.ts        # 全局常量 (如 Default Prompts, Storage Keys)\n│       └── utils.ts            # 无副作用的公共工具函数\n│\n├── tests/                      # 测试目录 (按模块对应)\n│   ├── content.test.ts         # 测试 DOM 提取等纯函数\n│   └── background.test.ts      # 测试并发队列等\n│\n├── public/                     # 静态资源 (图标等)\n│   └── icons/\n│       ├── icon-48.png\n│       └── icon-128.png\n│\n├── .dependency-cruiser.js      # 【边界警察】配置模块导入规则\n├── eslint.config.js            # 代码规范检查\n├── manifest.config.ts          # Manifest V3 配置文件 (CRXJS 支持 TS 动态生成)\n├── package.json\n├── tsconfig.json               # 严格的 TS 配置\n└── vite.config.ts              # 构建配置\n```\n\n### 三、 结构设计的设计意图 (指导 Agent 的关键)\n\n这个目录结构不是随便划分的，它隐含了对 Coding Agent 行为的强力约束：\n\n#### 1. 契约先行 (`src/shared/types.ts`)\n所有模块都必须从 `shared` 导入 TypeScript 接口。Agent 在写 `background` 发送逻辑和 `content` 接收逻辑时，如果字段不匹配，TypeScript 编译阶段就会报错，实现 **Rule 1: Write the constitution before the code**。\n\n#### 2. 隔离网络与 DOM 逻辑\n*   `src/background/` 目录下的代码**绝对不允许**出现 `document.getElementById` 或 `window`。\n*   `src/content/` 目录下的代码**绝对不允许**出现 `fetch(apiUrl)`。\n*   **如何强制执行？** 通过 `.dependency-cruiser.js` 写入规则：如果发现跨界导入，`npm run gate` 命令将直接报错失败，拒绝 Agent 提交。这落实了 **Rule 2: Make the modules small and independent**。\n\n#### 3. 业务逻辑纯粹化 (`src/content/dom-parser.ts`)\n把复杂的 DOM 遍历写在单独的 TS 文件中，不去混杂原生的 UI 渲染代码。这样 Agent 就可以在 `tests/content.test.ts` 中通过传入模拟的 HTML 字符串来快速验证逻辑，而不需要每次都刷新浏览器。落实了 **Rule 4: Sequence the quality work (During the code: Unit tests)**。\n\n#### 4. 动态 Manifest (`manifest.config.ts`)\n利用 Vite + CRXJS 的特性，可以使用 TypeScript 编写 Manifest 文件。这意味着可以将 `shared/constants.ts` 里面的版本号、应用名称（TwinRead）直接复用，避免 Agent 在多个地方硬编码导致信息不同步。",
+      "role": "model",
+      "finishReason": "STOP",
+      "tokenCount": 1491,
+      "parts": [{
+        "text": "为这款主打“沉浸式整页双"
+      }, {
+        "text": "语”和“基于上下文划词”的插件重新设计项目名，以及一套适合 Coding Agent 开发的、"
+      }, {
+        "text": "严格模块化的目录结构。\n\n### 一、 重新设计项目名\n\n为了凸显**“双语对照”、“上下文"
+      }, {
+        "text": "感知”**和**“不破坏沉浸感”**这三个核心价值，这里提供几个备选名称及"
+      }, {
+        "text": "寓意：\n\n1.  **TwinRead (中文名：双轨翻译 / 双生阅读)** —— *【"
+      }, {
+        "text": "推荐】*\n    *   **寓意**：Twin 代表双胞胎、成双成对，完美契合“"
+      }, {
+        "text": "整页对照式、原文与译文并存”的核心视觉形态。\n    *   **开发代号**："
+      }, {
+        "text": "`twin-read-ext`\n2.  **Contexta (中文名：境译)**\n    *   **寓"
+      }, {
+        "text": "意**：由 Context（上下文）演变而来，强调此插件的最大特色——基于上下文语境的精准翻译（"
+      }, {
+        "text": "划词取义），告别机械的字典式翻译。\n    *   **开发代号**：`contexta-translator"
+      }, {
+        "text": "`\n3.  **EchoLingua (中文名：回声翻译)**\n    *   **寓意**：译"
+      }, {
+        "text": "文就像是原文的回声，如影随形地附着在原文下方，自然且不显突兀。\n    *"
+      }, {
+        "text": "   **开发代号**：`echolingua-ext`\n\n*后续的目录结构展示，我们将以 **TwinRead"
+      }, {
+        "text": "** 作为项目名来构建。*\n\n---\n\n### 二、 整体目录结构设计 (基于 Vite + CRXJS)"
+      }, {
+        "text": "\n\n为了契合《Build Software with a Coding Agent》中的**Rule 2 (模块独立)**和**Rule 5 ("
+      }, {
+        "text": "共享逻辑)**，我们采用基于 Vite 的现代 Chrome 插件标准目录，并引入严格的边界划分。\n\n```text\ntwin"
+      }, {
+        "text": "-read-ext/\n├── docs/                       # 项目文档 (留给 Agent 阅读)\n│   └── ad"
+      }, {
+        "text": "r/                    # Rule 6: 架构决策记录 (如 001-api-format.md)\n│\n"
+      }, {
+        "text": "├── src/                        # 源代码核心区 (严格划分模块)\n│   │\n│   ├── background/"
+      }, {
+        "text": "             # 【模块 1：后台服务】(无 DOM 访问权)\n│   │   ├── index.ts            "
+      }, {
+        "text": "# Service Worker 入口\n│   │   ├── llm-client.ts       # LLM API 客户端 (兼容"
+      }, {
+        "text": " OpenAI 格式)\n│   │   └── request-queue.ts    # 并发请求控制逻辑\n│   │\n│   "
+      }, {
+        "text": "├── content/                # 【模块 2：内容脚本】(注入网页，仅 DOM 操作)\n│   │   "
+      }, {
+        "text": "├── index.ts            # 内容脚本入口 (监听事件，协调逻辑)\n│   │   ├── dom-parser.ts"
+      }, {
+        "text": "       # 纯函数：遍历与提取过滤 TextNode\n│   │   ├── batch-processor.ts  # 纯函数"
+      }, {
+        "text": "：将文本分块打包\n│   │   ├── injector.ts         # 纯函数：将翻译结果安全"
+      }, {
+        "text": "注入 DOM\n│   │   └── shadow-ui/          # 划词翻译的 Shadow DOM 浮窗组件\n│   "
+      }, {
+        "text": "│       ├── tooltip.ts\n│   │       └── tooltip.css\n│   │\n│   ├── options/                # 【"
+      }, {
+        "text": "模块 3：设置页面】(用户配置)\n│   │   ├── index.html\n│   │   ├── index.ts"
+      }, {
+        "text": "\n│   │   └── style.css\n│   │\n│   ├── popup/                  # 【模块 4：弹出面板"
+      }, {
+        "text": "】(快捷开关)\n│   │   ├── index.html\n│   │   ├── index.ts\n"
+      }, {
+        "text": "│   │   └── style.css\n│   │\n│   └── shared/                 # 【共享包】(Rule 1"
+      }, {
+        "text": " \u0026 5: 契约与公共逻辑)\n│       ├── types.ts            # 核心契约 ("
+      }, {
+        "text": "如 Request/Response 接口)\n│       ├── constants.ts        # 全局常量 (如 Default Prompts, Storage Keys)\n"
+      }, {
+        "text": "│       └── utils.ts            # 无副作用的公共工具函数\n│\n├── tests/                      # 测试目录"
+      }, {
+        "text": " (按模块对应)\n│   ├── content.test.ts         # 测试 DOM 提取等纯函数\n│   └── background."
+      }, {
+        "text": "test.ts      # 测试并发队列等\n│\n├── public/                     # 静态资源 (图标等)\n│   └── icons"
+      }, {
+        "text": "/\n│       ├── icon-48.png\n│       └── icon-128.png\n│\n├──"
+      }, {
+        "text": " .dependency-cruiser.js      # 【边界警察】配置模块导入规则\n├── eslint.config.js"
+      }, {
+        "text": "            # 代码规范检查\n├── manifest.config.ts          # Manifest V3 配置文件 (CRXJS 支持"
+      }, {
+        "text": " TS 动态生成)\n├── package.json\n├── tsconfig.json               # 严格的 TS 配置\n└── vite.config."
+      }, {
+        "text": "ts              # 构建配置\n```\n\n### 三、 结构设计的设计意图 (指导 Agent 的关键)\n\n这个"
+      }, {
+        "text": "目录结构不是随便划分的，它隐含了对 Coding Agent 行为的强力约束：\n\n#### 1. 契约"
+      }, {
+        "text": "先行 (`src/shared/types.ts`)\n所有模块都必须从 `shared` 导入 TypeScript 接口。Agent 在"
+      }, {
+        "text": "写 `background` 发送逻辑和 `content` 接收逻辑时，如果字段不匹配，TypeScript 编译阶段就会报错，实现"
+      }, {
+        "text": " **Rule 1: Write the constitution before the code**。\n\n#### 2. 隔离网络与 DOM "
+      }, {
+        "text": "逻辑\n*   `src/background/` 目录下的代码**绝对不允许**出现 `document.getElementById` 或 `window"
+      }, {
+        "text": "`。\n*   `src/content/` 目录下的代码**绝对不允许**出现 `fetch(apiUrl)`。\n*   **"
+      }, {
+        "text": "如何强制执行？** 通过 `.dependency-cruiser.js` 写入规则：如果发现跨界导入，"
+      }, {
+        "text": "`npm run gate` 命令将直接报错失败，拒绝 Agent 提交。这落实了 **Rule 2: Make"
+      }, {
+        "text": " the modules small and independent**。\n\n#### 3. 业务逻辑纯粹化 (`src/content/dom-parser.ts`)"
+      }, {
+        "text": "\n把复杂的 DOM 遍历写在单独的 TS 文件中，不去混杂原生的 UI 渲染代码。这样 Agent"
+      }, {
+        "text": " 就可以在 `tests/content.test.ts` 中通过传入模拟的 HTML 字符串来快速验证逻辑，而不需要每次"
+      }, {
+        "text": "都刷新浏览器。落实了 **Rule 4: Sequence the quality work (During the code: Unit tests)**。\n\n####"
+      }, {
+        "text": " 4. 动态 Manifest (`manifest.config.ts`)\n利用 Vite + CRXJS 的特性，可以使用 TypeScript 编写"
+      }, {
+        "text": " Manifest 文件。这意味着可以将 `shared/constants.ts` 里面的版本号、应用名称（TwinRead）直接复用"
+      }, {
+        "text": "，避免 Agent 在多个地方硬编码导致信息不同步。"
+      }, {
+        "text": "",
+        "thoughtSignature": "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"
+      }],
+      "createTime": "2026-10-13T04:57:10.319Z"
+    }],
+    "pendingInputs": [{
+      "text": "",
+      "role": "user"
+    }]
+  }
+}
