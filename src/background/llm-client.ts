@@ -23,6 +23,7 @@ import {
 import { buildChatCompletionBody, buildChatCompletionsUrl, type ChatMessage } from '@core-llm/chat';
 import { buildModelsUrl, parseModelsResponse } from '@core-llm/models';
 import { isLocalBaseUrl } from '@shared/permissions';
+import { getCustomHeaders } from '@shared/providers';
 import { buildTestConnectionMessages, buildTranslationMessages, type PromptLanguages } from '@core-llm/prompt';
 import { parseTranslationReply } from '@core-llm/parse';
 
@@ -69,6 +70,7 @@ async function chatCompletion(settings: ProviderSettings, messages: ChatMessage[
   }
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (settings.apiKey) headers.Authorization = `Bearer ${settings.apiKey}`;
+  Object.assign(headers, getCustomHeaders(settings.baseUrl));
   let response: Response;
   try {
     response = await fetch(buildChatCompletionsUrl(settings.baseUrl), {
@@ -115,6 +117,7 @@ export async function listModels(baseUrl: string, apiKey: string): Promise<Model
   if (!apiKey && !isLocalBaseUrl(baseUrl)) return fail('尚未填写 API Key，无法获取模型列表');
   const headers: Record<string, string> = {};
   if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
+  Object.assign(headers, getCustomHeaders(baseUrl));
   let response: Response;
   try {
     response = await fetch(buildModelsUrl(baseUrl), { method: 'GET', headers });

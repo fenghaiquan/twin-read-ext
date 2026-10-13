@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { isLocalBaseUrl, originPatternFromBaseUrl } from '../packages/shared/permissions';
-import { PROVIDER_PRESETS } from '../packages/shared/providers';
+import { getCustomHeaders, PROVIDER_PRESETS } from '../packages/shared/providers';
 
 describe('PROVIDER_PRESETS', () => {
   it('预设列表非空且每项字段完整', () => {
@@ -38,6 +38,32 @@ describe('PROVIDER_PRESETS', () => {
     expect(urls).toContain('open.bigmodel.cn');
     expect(urls).toContain('api.openai.com');
     expect(urls).toContain('localhost:11434');
+  });
+
+  it('包含 opencode-go 平台预设', () => {
+    const preset = PROVIDER_PRESETS.find((p) => p.id === 'opencode-go');
+    expect(preset).toBeDefined();
+    expect(preset?.baseUrl).toBe('https://opencode.ai/zen/go/v1');
+    expect(preset?.model).toBe('qwen3.7-plus');
+    expect(preset?.customHeaders).toBeDefined();
+    expect(preset?.customHeaders?.['x-opencode-session']).toBe('twin-read-opencode-go');
+  });
+});
+
+describe('getCustomHeaders', () => {
+  it('已知预设返回对应的自定义头', () => {
+    const headers = getCustomHeaders('https://opencode.ai/zen/go/v1');
+    expect(headers['x-opencode-session']).toBe('twin-read-opencode-go');
+  });
+
+  it('未知 baseUrl 返回空对象', () => {
+    const headers = getCustomHeaders('https://unknown.example.com/v1');
+    expect(headers).toEqual({});
+  });
+
+  it('没有 customHeaders 字段的预设返回空对象', () => {
+    const headers = getCustomHeaders('https://dashscope.aliyuncs.com/compatible-mode/v1');
+    expect(headers).toEqual({});
   });
 });
 

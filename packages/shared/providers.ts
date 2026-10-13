@@ -18,6 +18,8 @@ export interface ProviderPreset {
   keyUrl: string;
   /** Short hint shown when the preset is selected. */
   keyHint: string;
+  /** Optional extra HTTP headers merged into every request (e.g. opencode's x-opencode-session routing hint). */
+  customHeaders?: Record<string, string>;
 }
 
 export const PROVIDER_PRESETS: ProviderPreset[] = [
@@ -69,9 +71,28 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
     keyUrl: 'https://ollama.com/library',
     keyHint: '本地运行无需 API Key，留空即可；模型名需与 ollama pull 的一致',
   },
+  {
+    id: 'opencode-go',
+    name: 'OpenCode Go',
+    baseUrl: 'https://opencode.ai/zen/go/v1',
+    model: 'qwen3.7-plus',
+    keyUrl: 'https://opencode.ai',
+    keyHint: '在 opencode 控制台获取 API Key；请求会自动附带 x-opencode-session 路由头',
+    customHeaders: {
+      // Opencode 网关强制要求 x-opencode-session 路由标记：任意固定唯一字符串
+      // 文档：https://opencode.ai/docs/go/#where-can-i-use-it
+      'x-opencode-session': 'twin-read-opencode-go',
+    },
+  },
 ];
 
 /** Find a preset whose baseUrl + model both match the given settings. */
 export function matchPreset(baseUrl: string, model: string): ProviderPreset | null {
   return PROVIDER_PRESETS.find((p) => p.baseUrl === baseUrl && p.model === model) ?? null;
+}
+
+/** Return the extra HTTP headers a preset wants to attach to every request (matched by baseUrl only). */
+export function getCustomHeaders(baseUrl: string): Record<string, string> {
+  const preset = PROVIDER_PRESETS.find((p) => p.baseUrl === baseUrl);
+  return preset?.customHeaders ?? {};
 }
