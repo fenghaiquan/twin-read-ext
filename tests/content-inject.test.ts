@@ -81,6 +81,19 @@ describe('insertTranslationAfter', () => {
     expect(span.style.fontWeight).toBe('bold'); // same typography as the original
   });
 
+  it('copies margin for centered/indented anchors so translation aligns horizontally', () => {
+    const container = parse('<p style="margin: 0 auto; width: 600px">Centered text</p>');
+    document.body.appendChild(container);
+    const anchor = extractBlockTargets(container)[0]!.element;
+
+    insertTranslationAfter(anchor, '居中译文');
+
+    const span = container.querySelector(`span.${INJECTED_CLASS}`) as HTMLSpanElement;
+    expect(span.style.marginLeft).toBe('auto');
+    expect(span.style.marginRight).toBe('auto');
+    expect(span.style.width).toBe('600px');
+  });
+
   it('appends inside table cells instead of breaking the row layout', () => {
     const container = parse('<table><tr><td>Cell</td></tr></table>');
     const anchor = extractBlockTargets(container)[0]!.element;

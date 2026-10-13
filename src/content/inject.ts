@@ -19,7 +19,7 @@ const SPINNER_KEYFRAMES = '@keyframes twin-read-spin{to{transform:rotate(360deg)
 const TRANSLATION_COLOR = '#64748b';
 
 /** Typography properties copied from the original so both texts look alike. */
-const TYPOGRAPHY_PROPS = [
+const TEXT_STYLE_PROPS = [
   'font-family',
   'font-size',
   'font-weight',
@@ -29,6 +29,20 @@ const TYPOGRAPHY_PROPS = [
   'text-align',
   'text-transform',
 ] as const;
+
+/** Horizontal layout properties so the translation lines up with the original. */
+const LAYOUT_PROPS = [
+  'margin-top',
+  'margin-bottom',
+  'margin-left',
+  'margin-right',
+  'padding-left',
+  'padding-right',
+  'max-width',
+  'box-sizing',
+] as const;
+
+const BOX_PROPS = [...TEXT_STYLE_PROPS, ...LAYOUT_PROPS] as const;
 
 /** Inject the spinner keyframes stylesheet once (namespaced, tiny). */
 function ensureSpinnerStyles(): void {
@@ -44,10 +58,10 @@ function isTableCell(element: Element): boolean {
   return tag === 'td' || tag === 'th';
 }
 
-/** Copy the anchor's typography + layout width onto the translation span. */
+/** Copy the anchor's typography + horizontal layout onto the translation span. */
 function matchOriginalTypography(span: HTMLSpanElement, anchor: Element): void {
   const computed = window.getComputedStyle(anchor);
-  for (const prop of TYPOGRAPHY_PROPS) {
+  for (const prop of BOX_PROPS) {
     const value = computed.getPropertyValue(prop);
     if (value !== '') span.style.setProperty(prop, value);
   }
