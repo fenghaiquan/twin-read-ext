@@ -92,4 +92,40 @@ export interface ContentMessageResult {
 /** chrome.storage.local keys owned by this extension. */
 export const STORAGE_KEYS = {
   providerSettings: 'providerSettings',
+  behaviorSettings: 'behaviorSettings',
 } as const;
+
+/** Source language option for prompts ('auto' = let the model detect). */
+export type SourceLanguage = 'auto' | 'en' | 'ja' | 'ko' | 'fr' | 'de' | 'es';
+export const SOURCE_LANGUAGES: readonly SourceLanguage[] = ['auto', 'en', 'ja', 'ko', 'fr', 'de', 'es'];
+
+/** Target language option for prompts. */
+export type TargetLanguage = 'zh-CN' | 'zh-TW' | 'en';
+export const TARGET_LANGUAGES: readonly TargetLanguage[] = ['zh-CN', 'zh-TW', 'en'];
+
+/** Display labels for the Options language dropdowns. */
+export const LANGUAGE_LABELS: Record<SourceLanguage | TargetLanguage, string> = {
+  auto: '自动检测',
+  en: 'English',
+  ja: '日语',
+  ko: '韩语',
+  fr: '法语',
+  de: '德语',
+  es: '西班牙语',
+  'zh-CN': '简体中文',
+  'zh-TW': '繁體中文',
+};
+
+/** User-facing behavior settings (Options「行为」tab; content/background consume). */
+export interface BehaviorSettings {
+  /** false = content script ignores text selections entirely. */
+  selectionEnabled: boolean;
+  sourceLanguage: SourceLanguage;
+  targetLanguage: TargetLanguage;
+}
+
+export const DEFAULT_BEHAVIOR_SETTINGS: BehaviorSettings = {
+  selectionEnabled: true,
+  sourceLanguage: 'auto',
+  targetLanguage: 'zh-CN',
+};

@@ -15,6 +15,7 @@
  *   - runToken: drop stale responses after cancel
  */
 
+import { STORAGE_KEYS } from '@shared/types';
 import type {
   ContentMessage,
   ContentMessageResult,
@@ -22,6 +23,7 @@ import type {
   TranslationResponse,
 } from '@shared/types';
 import { classifySelection } from '@shared/selection';
+import { readSelectionEnabled } from './behavior';
 import { buildSelectionRequest } from './selection';
 import { PageTranslationController } from './page-translation';
 import {
@@ -106,8 +108,24 @@ function renderSelectionResponse(
   }
 }
 
+/** Behavior switch (Options「行为」tab): false = ignore selections entirely. */
+let selectionEnabled = true;
+
+void chrome.storage.local.get(STORAGE_KEYS.behaviorSettings).then((stored) => {
+  selectionEnabled = readSelectionEnabled(stored[STORAGE_KEYS.behaviorSettings]);
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'local') return;
+  const change = changes[STORAGE_KEYS.behaviorSettings];
+  if (!change) return;
+  selectionEnabled = readSelectionEnabled(change.newValue);
+  if (!selectionEnabled) hideAll();
+});
+
 document.addEventListener('mouseup', (event: MouseEvent) => {
   if (isPanelEventTarget(event.target)) return;
+  if (!selectionEnabled) return;
 
   const request = buildSelectionRequest();
   if (request === null) {

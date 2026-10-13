@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Chrome](https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/develop/migrate)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](tsconfig.json)
-[![Tests](https://img.shields.io/badge/tests-113%2F113-brightgreen)](#%EF%B8%8F-%E5%BC%80%E5%8F%91)
+[![Tests](https://img.shields.io/badge/tests-125%2F125-brightgreen)](#%EF%B8%8F-%E5%BC%80%E5%8F%91)
 
 *A lightweight immersive bilingual reading extension for Chrome, powered by any OpenAI-compatible LLM (default: Qwen).*
 
@@ -40,7 +40,7 @@ Twin Read 让你用一套自己的 API Key，在任意网页获得「原文 + �
 
 ### 🔧 任意 OpenAI 兼容提供商
 
-设置页内置常用平台预设——阿里云百炼（Qwen，默认）/ DeepSeek / Kimi / 智谱 GLM / OpenAI / 本地 Ollama——选择即自动填充 Base URL 与默认模型，并附「获取 API Key」直达链接；填好 Key 后点「获取模型列表」可直接拉取该平台全部可用模型，下拉选择免手填。也可切换到任何兼容 OpenAI ChatCompletions 格式的其他服务（本地 Ollama 无需 Key）。
+设置页内置常用平台预设——阿里云百炼（Qwen，默认）/ DeepSeek / Kimi / 智谱 GLM / OpenAI / 本地 Ollama——选择即自动填充 Base URL 与默认模型，并附「获取 API Key」直达链接；填好 Key 后点「获取模型列表」可直接拉取该平台全部可用模型，下拉选择免手填。也可切换到任何兼容 OpenAI ChatCompletions 格式的其他服务（本地 Ollama 无需 Key）。「行为」页可开关划词翻译、指定源/目标语言（默认自动检测 → 简体中文），修改即时生效。
 
 ## 📸 效果预览
 
@@ -117,7 +117,7 @@ npm run gate     # 宪法关卡：tsc + eslint + vitest + depcruise，必须全�
 
 1. `tsc --noEmit` —— TypeScript `strict: true` 全量类型检查
 2. `eslint . --max-warnings=0` —— 零警告，含 `complexity ≤ 10` 复杂度上限
-3. `vitest run` —— 单元测试（当前 **113/113**，覆盖 DOM 解析、分批、注入、划词、浮窗、LLM 解析、并发队列、域名权限、平台预设与模型列表解析）
+3. `vitest run` —— 单元测试（当前 **125/125**，覆盖 DOM 解析、分批、注入、划词、浮窗、LLM 解析、并发队列、域名权限、平台预设、模型列表解析与行为设置）
 4. `depcruise` —— 依赖边界校验（见上表约束）
 
 ```
@@ -129,7 +129,7 @@ npm run gate     # 宪法关卡：tsc + eslint + vitest + depcruise，必须全�
 │  ├─ content/       # DOM 解析、分批、注入、划词、浮窗
 │  ├─ options/       # 设置页
 │  └─ popup/         # 工具栏弹窗
-├─ tests/            # 10 个测试文件，113 个用例
+├─ tests/            # 12 个测试文件，125 个用例
 └─ docs/
    ├─ adr/           # 4 份架构决策记录
    └─ acceptance/    # 每个 Sprint 的人工验收清单

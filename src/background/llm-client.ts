@@ -6,10 +6,16 @@
  */
 
 import {
+  DEFAULT_BEHAVIOR_SETTINGS,
   DEFAULT_PROVIDER_SETTINGS,
+  SOURCE_LANGUAGES,
   STORAGE_KEYS,
+  TARGET_LANGUAGES,
+  type BehaviorSettings,
   type ModelListResult,
   type ProviderSettings,
+  type SourceLanguage,
+  type TargetLanguage,
   type TestConnectionResult,
   type TranslationRequest,
   type TranslationResponse,
@@ -17,7 +23,7 @@ import {
 import { buildChatCompletionBody, buildChatCompletionsUrl, type ChatMessage } from '@core-llm/chat';
 import { buildModelsUrl, parseModelsResponse } from '@core-llm/models';
 import { isLocalBaseUrl } from '@shared/permissions';
-import { buildTestConnectionMessages, buildTranslationMessages } from '@core-llm/prompt';
+import { buildTestConnectionMessages, buildTranslationMessages, type PromptLanguages } from '@core-llm/prompt';
 import { parseTranslationReply } from '@core-llm/parse';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -35,6 +41,23 @@ export async function getProviderSettings(): Promise<ProviderSettings> {
     baseUrl: typeof raw.baseUrl === 'string' && raw.baseUrl.trim() ? raw.baseUrl.trim() : DEFAULT_PROVIDER_SETTINGS.baseUrl,
     apiKey: typeof raw.apiKey === 'string' ? raw.apiKey.trim() : '',
     model: typeof raw.model === 'string' && raw.model.trim() ? raw.model.trim() : DEFAULT_PROVIDER_SETTINGS.model,
+  };
+}
+
+/** Read the user's language preferences (Options「行为」tab), with defaults. */
+export async function getPromptLanguages(): Promise<PromptLanguages> {
+  const stored = await chrome.storage.local.get<Record<string, Partial<BehaviorSettings>>>(
+    STORAGE_KEYS.behaviorSettings,
+  );
+  const raw = stored[STORAGE_KEYS.behaviorSettings];
+  if (!isRecord(raw)) return { source: DEFAULT_BEHAVIOR_SETTINGS.sourceLanguage, target: DEFAULT_BEHAVIOR_SETTINGS.targetLanguage };
+  return {
+    source: SOURCE_LANGUAGES.includes(raw.sourceLanguage as SourceLanguage)
+      ? (raw.sourceLanguage as SourceLanguage)
+      : DEFAULT_BEHAVIOR_SETTINGS.sourceLanguage,
+    target: TARGET_LANGUAGES.includes(raw.targetLanguage as TargetLanguage)
+      ? (raw.targetLanguage as TargetLanguage)
+      : DEFAULT_BEHAVIOR_SETTINGS.targetLanguage,
   };
 }
 
@@ -123,7 +146,7 @@ export async function translate(request: TranslationRequest): Promise<Translatio
   }
   try {
     const settings = await getProviderSettings();
-    const content = await chatCompletion(settings, buildTranslationMessages(request));
+    const content = await chatCompletion(settings, buildTranslationMessages(request, await getPromptLanguages()));
     return { id: request.id, success: true, translatedTexts: parseTranslationReply(content, request) };
   } catch (error) {
     return { id: request.id, success: false, translatedTexts: [], errorMessage: toErrorMessage(error) };

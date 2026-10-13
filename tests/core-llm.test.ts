@@ -163,3 +163,33 @@ describe('buildModelsUrl', () => {
     expect(buildModelsUrl(' http://localhost:11434/v1/ ')).toBe('http://localhost:11434/v1/models');
   });
 });
+
+describe('buildTranslationMessages 语言偏好参数化', () => {
+  it('默认（auto → zh-CN）与原版提示词逐字节一致', () => {
+    const all = buildTranslationMessages(fullPageRequest(['Hello']));
+    expect(all[0]?.content).toBe('你是专业的网页翻译器，将外语文本翻译为流畅自然的中文，保持原文语气与格式。只输出翻译结果，不要添加任何解释。');
+    expect(all.at(-1)?.content).toContain('翻译为中文');
+    expect(all.at(-1)?.content).not.toContain('源语言');
+  });
+
+  it('目标繁体中文：系统与用户提示均含「繁体中文」', () => {
+    const all = buildTranslationMessages(fullPageRequest(['Hello']), { source: 'auto', target: 'zh-TW' });
+    expect(all[0]?.content).toContain('繁体中文');
+    expect(all.at(-1)?.content).toContain('翻译为繁体中文');
+  });
+
+  it('指定源语言（日语）：出现源语言提示；auto 时不出现', () => {
+    const hinted = buildTranslationMessages(fullPageRequest(['こんにちは']), { source: 'ja', target: 'zh-CN' });
+    expect(hinted.at(-1)?.content).toContain('源语言：日语');
+    const auto = buildTranslationMessages(fullPageRequest(['こんにちは']), { source: 'auto', target: 'zh-CN' });
+    expect(auto.at(-1)?.content).not.toContain('源语言');
+  });
+
+  it('划词段落模式同样应用目标语言', () => {
+    const request: TranslationRequest = { id: 'r', type: 'selection', texts: ['Hello world, this is a test.'], context: 'Hello world, this is a test.' };
+    const messages = buildTranslationMessages(request, { source: 'en', target: 'zh-TW' });
+    expect(messages[0]?.content).toContain('繁体中文');
+    expect(messages[0]?.content).toContain('只翻译「选中的内容」');
+    expect(messages.at(-1)?.content).toContain('源语言：英语');
+  });
+});
