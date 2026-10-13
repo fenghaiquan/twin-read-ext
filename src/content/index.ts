@@ -2,12 +2,12 @@
  * Content script entry: context-aware selection translation (Sprint 2).
  *
  * Flow (constitution: no direct network access):
- *   mouseup -> show dot indicator
- *   dot click -> buildSelectionRequest -> chrome.runtime.sendMessage('translate')
- *   -> background/llm-client -> response -> Shadow DOM panel (ADR-003)
+ *   mouseup (valid selection) -> snapshot request + rect -> show dot
+ *   dot click -> use the snapshot (NOT the live selection, which the
+ *   browser clears on mousedown) -> sendMessage -> panel (ADR-003)
  */
 
-import type { TranslationResponse } from '@shared/types';
+import type { TranslationRequest, TranslationResponse } from '@shared/types';
 import { classifySelection } from '@shared/selection';
 import { buildSelectionRequest } from './selection';
 import {
@@ -21,6 +21,14 @@ import {
   showWordResult,
 } from './panel';
 
+/**
+ * Snapshot of the selection captured at mouseup time. The browser clears
+ * the selection on the dot's mousedown, so the live selection can no longer
+ * be trusted once the dot is clicked.
+ */
+let pendingRequest: TranslationRequest | null = null;
+let pendingRect: DOMRect | null = null;
+
 function isPanelEventTarget(target: EventTarget | null): boolean {
   const host = getPanelHost();
   return target instanceof Node && host !== null && (host === target || host.contains(target));
@@ -33,14 +41,19 @@ function getSelectionRect(): DOMRect | null {
   return rect.width === 0 && rect.height === 0 ? null : rect;
 }
 
+function hideAll(): void {
+  pendingRequest = null;
+  pendingRect = null;
+  hide();
+}
+
 async function handleDotClick(): Promise<void> {
-  const request = buildSelectionRequest();
-  if (request === null) return;
+  const request = pendingRequest;
+  const rect = pendingRect;
+  if (request === null || rect === null) return;
 
-  const rect = getSelectionRect();
-  if (rect === null) return;
-
-  hideDot(); // hide dot when panel opens
+  pendingRequest = null; // consume the snapshot; one dot click = one translation
+  hideDot();
   openPanel(rect);
 
   const response = (await chrome.runtime.sendMessage({
@@ -53,7 +66,7 @@ async function handleDotClick(): Promise<void> {
 
 function renderResponse(
   response: TranslationResponse | undefined,
-  request: { id: string; texts: string[]; type: 'selection' | 'full-page' },
+  request: TranslationRequest,
   rect: DOMRect,
 ): void {
   if (response === undefined || response.id !== request.id) {
@@ -66,10 +79,9 @@ function renderResponse(
   }
 
   const selected = request.texts[0] ?? '';
-  const mode = classifySelection(selected);
   const translation = response.translatedTexts[0] ?? '';
 
-  if (mode === 'word') {
+  if (classifySelection(selected) === 'word') {
     showWordResult(rect, selected, translation);
   } else {
     showTranslationResult(rect, selected, translation);
@@ -79,36 +91,34 @@ function renderResponse(
 document.addEventListener('mouseup', (event: MouseEvent) => {
   if (isPanelEventTarget(event.target)) return;
 
+  const request = buildSelectionRequest();
+  if (request === null) {
+    hideAll();
+    return;
+  }
   const rect = getSelectionRect();
-  if (rect === null) return;
-
-  // Check if there's actual selection text
-  const selection = window.getSelection();
-  if (selection === null || selection.isCollapsed) {
-    hide();
+  if (rect === null) {
+    hideAll();
     return;
   }
 
-  const text = selection.toString().trim();
-  if (!text || text.length > 300) {
-    hide();
-    return;
-  }
-
+  pendingRequest = request;
+  pendingRect = rect;
   showDot(rect);
 });
 
 document.addEventListener('mousedown', (event: MouseEvent) => {
-  if (!isPanelEventTarget(event.target)) hide();
+  if (!isPanelEventTarget(event.target)) hideAll();
 });
 
 document.addEventListener('keydown', (event: KeyboardEvent) => {
-  if (event.key === 'Escape') hide();
+  if (event.key === 'Escape') hideAll();
 });
 
-window.addEventListener('scroll', () => hide(), { passive: true });
+window.addEventListener('scroll', () => hideAll(), { passive: true });
 
-// Listen for dot clicks from the panel shadow DOM
+// The dot lives inside a closed ShadowRoot; its click is re-emitted from the
+// host element as a composed custom event.
 document.addEventListener('twin-read-dot-clicked', () => {
   void handleDotClick();
 });

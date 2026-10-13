@@ -9,7 +9,8 @@
  */
 
 const HOST_ID = 'twin-read-panel-host';
-const DOT_SIZE = 20;
+const DOT_SIZE = 12;
+const DOT_OFFSET = 4; // gap between selection rect and the dot
 const PANEL_MAX_WIDTH = 420;
 const PANEL_MAX_HEIGHT = 400;
 
@@ -23,8 +24,10 @@ const STYLES = `
     cursor: pointer;
     display: none;
     z-index: 2147483647;
-    box-shadow: 0 2px 8px rgba(232, 67, 147, 0.4);
+    box-shadow: 0 1px 4px rgba(232, 67, 147, 0.45);
     transition: transform 0.15s ease;
+    user-select: none;
+    -webkit-user-select: none;
   }
   .dot.visible {
     display: block;
@@ -237,16 +240,16 @@ function positionElement(
   let top: number;
 
   if (placement === 'dot') {
-    // Dot at bottom-right of selection
-    left = rect.right + margin;
-    top = rect.bottom + margin;
+    // Small dot hugging the bottom-right corner of the selection
+    left = rect.right + DOT_OFFSET;
+    top = rect.bottom + DOT_OFFSET;
 
     // Clamp to viewport
-    if (left + DOT_SIZE > viewportWidth - margin) {
+    if (left + DOT_SIZE > viewportWidth - DOT_OFFSET) {
       left = rect.left;
     }
-    if (top + DOT_SIZE > viewportHeight - margin) {
-      top = rect.top - DOT_SIZE - margin;
+    if (top + DOT_SIZE > viewportHeight - DOT_OFFSET) {
+      top = rect.top - DOT_SIZE - DOT_OFFSET;
     }
   } else {
     // Panel below dot
