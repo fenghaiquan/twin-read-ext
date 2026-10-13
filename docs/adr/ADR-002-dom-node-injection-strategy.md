@@ -8,6 +8,8 @@
 整页对照翻译**不修改**原 TextNode 的 `nodeValue`，**不使用** `innerHTML` 重写父容器；必须使用
 `Node.parentNode.insertBefore` 在原文本节点之后插入带 `class="twin-read-trans"` 的 `<span>` 元素。
 
+**修订（2025-01-15，ADR-004）**：注入锚点从「原 TextNode 之后」改为「叶子块级元素（p/li/h1-h6 等）之后」，译文 span 设置 `display: block` 在原文下方独立成行。文本单位从「TextNode 片段」改为「整段合并文本」。注入方式（insertBefore + 零修改）不变。
+
 ## 原因
 
 直接替换 HTML 会破坏 React/Vue 等前端框架的 Virtual DOM 映射，导致页面交互失效。

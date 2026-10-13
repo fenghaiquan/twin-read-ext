@@ -1,12 +1,14 @@
 /**
- * Pure DOM traversal for full-page translation (Sprint 3, TDD).
+ * Pure DOM traversal for full-page translation (Sprint 3 + 4.1, TDD).
  *
- * Extracts translatable Text nodes WITHOUT modifying the DOM (ADR-002).
+ * Extracts translatable content WITHOUT modifying the DOM (ADR-002).
  * Skip rules:
  * - non-content tags (script/style/code/pre/...)
  * - elements hidden via the hidden attribute or inline display/visibility
  * - nodes injected by us in a previous translation pass (INJECTED_CLASS)
  * - blank / digit-or-symbol-only text
+ *
+ * Sprint 4.1 upgrade: block-level extraction for lazy translation (ADR-004)
  */
 
 /** Class applied to injected translation nodes (must match ADR-002). */
@@ -16,6 +18,19 @@ export const SKIP_TAGS: ReadonlySet<string> = new Set([
   'script', 'style', 'code', 'pre', 'kbd', 'samp', 'noscript',
   'textarea', 'template', 'svg', 'math', 'iframe',
 ]);
+
+/** Block-level elements that serve as translation anchors (ADR-004). */
+export const BLOCK_TAGS: ReadonlySet<string> = new Set([
+  'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'li', 'blockquote', 'td', 'th', 'dd', 'dt',
+  'figcaption', 'summary',
+]);
+
+/** A block-level element with its merged translatable text. */
+export interface BlockTarget {
+  element: Element;
+  text: string;
+}
 
 /** True if the element (and its whole subtree) must not be translated. */
 export function isSkippedElement(element: Element): boolean {
@@ -50,4 +65,61 @@ function collectTranslatableNodes(node: Node, out: Text[]): void {
   }
   if (node.nodeType === Node.ELEMENT_NODE && isSkippedElement(node as Element)) return;
   node.childNodes.forEach((child) => collectTranslatableNodes(child, out));
+}
+
+/**
+ * Extract leaf block-level elements with their merged translatable text (ADR-004).
+ *
+ * A "leaf block" is a block-tagged element that does NOT contain nested block-tagged
+ * descendants. This ensures we translate at the paragraph/list-item level, not at
+ * arbitrary div wrappers.
+ *
+ * Skips blocks that:
+ * - Are in SKIP_TAGS subtree (code/pre etc.)
+ * - Are hidden
+ * - Already contain INJECTED_CLASS spans (re-translation guard)
+ * - Have no translatable text
+ */
+export function extractBlockTargets(root: Element | Document): BlockTarget[] {
+  const result: BlockTarget[] = [];
+  collectBlockTargets(root, result);
+  return result;
+}
+
+function collectBlockTargets(node: Node, out: BlockTarget[]): void {
+  if (node.nodeType !== Node.ELEMENT_NODE) return;
+  const element = node as Element;
+
+  if (isSkippedElement(element)) return;
+
+  const tag = element.tagName.toLowerCase();
+
+  // If this is a block element, check if it's a leaf (no nested block descendants)
+  if (BLOCK_TAGS.has(tag)) {
+    if (!hasNestedBlockDescendants(element) && !element.querySelector(`.${INJECTED_CLASS}`)) {
+      const text = collectBlockText(element);
+      if (text.length > 0) {
+        out.push({ element, text });
+        return; // Don't recurse into children
+      }
+    }
+  }
+
+  // Recurse into children
+  element.childNodes.forEach((child) => collectBlockTargets(child, out));
+}
+
+/** True if the element contains a descendant with a BLOCK_TAG. */
+function hasNestedBlockDescendants(element: Element): boolean {
+  for (const child of element.children) {
+    if (BLOCK_TAGS.has(child.tagName.toLowerCase())) return true;
+    if (hasNestedBlockDescendants(child)) return true;
+  }
+  return false;
+}
+
+/** Collect and merge all translatable text within a block element. */
+function collectBlockText(element: Element): string {
+  const nodes = extractTextNodes(element);
+  return nodes.map((node) => (node.nodeValue ?? '').trim()).join(' ').replace(/\s+/g, ' ').trim();
 }

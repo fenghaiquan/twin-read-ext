@@ -1,15 +1,18 @@
 /**
- * Content script entry (Sprint 2 + 4).
+ * Content script entry (Sprint 2 + 4 + 4.1).
  *
  * Selection translation (constitution: no direct network access):
  *   mouseup (valid selection) -> snapshot request + rect -> show dot
  *   dot click -> use the snapshot (NOT the live selection, which the
  *   browser clears on mousedown) -> sendMessage -> panel (ADR-003)
  *
- * Full-page translation (Sprint 4):
- *   popup toggle -> extract + chunk (Sprint 3 pure fns) -> batches to
- *   background (concurrency capped there) -> inject sibling spans
- *   right after each original TextNode (ADR-002), progressively.
+ * Full-page translation (Sprint 4 + 4.1, ADR-004):
+ *   popup toggle -> PageTranslationController manages:
+ *   - extractBlockTargets: leaf block-level anchors (p/li/h1-h6...)
+ *   - IntersectionObserver: lazy translation (viewport-driven)
+ *   - In-memory cache: instant toggle off→on
+ *   - Pending markers: "… 翻译中" shown during API call
+ *   - runToken: drop stale responses after cancel
  */
 
 import type {
@@ -20,9 +23,7 @@ import type {
 } from '@shared/types';
 import { classifySelection } from '@shared/selection';
 import { buildSelectionRequest } from './selection';
-import { extractTextNodes } from './dom-parser';
-import { chunkTextNodes } from './batch-processor';
-import { injectTranslations, removeAllTranslations } from './inject';
+import { PageTranslationController } from './page-translation';
 import {
   getPanelHost,
   hide,
@@ -141,52 +142,14 @@ document.addEventListener('twin-read-dot-clicked', () => {
 });
 
 /* ------------------------------------------------------------------ */
-/* Full-page translation (Sprint 4)                                    */
+/* Full-page translation (Sprint 4.1, ADR-004)                         */
 /* ------------------------------------------------------------------ */
 
-let pageTranslationEnabled = false;
-/** Bumped on every toggle so in-flight batch replies of a cancelled run are dropped. */
-let runToken = 0;
-
-async function applyBatch(nodes: Text[], request: TranslationRequest, token: number): Promise<void> {
-  const response = (await chrome.runtime.sendMessage({
-    type: 'translate',
-    request,
-  })) as TranslationResponse | undefined;
-
-  if (token !== runToken) return; // toggled off (or re-toggled) while in flight
-  if (response === undefined || response.id !== request.id) return;
-  if (!response.success) {
-    console.warn('[twin-read] batch translation failed:', response.errorMessage);
-    return;
-  }
-  injectTranslations(nodes, response.translatedTexts);
-}
-
-/** Fire all batch requests at once; the background limiter caps concurrency. */
-async function translatePage(token: number): Promise<void> {
-  const jobs = chunkTextNodes(extractTextNodes(document.body)).map((batch) => ({
-    nodes: batch.nodes,
-    request: {
-      id: crypto.randomUUID(),
-      type: 'full-page',
-      texts: batch.texts,
-    } satisfies TranslationRequest,
-  }));
-  await Promise.all(jobs.map(({ nodes, request }) => applyBatch(nodes, request, token)));
-}
-
-async function togglePageTranslation(): Promise<ContentMessageResult> {
-  pageTranslationEnabled = !pageTranslationEnabled;
-  runToken += 1; // invalidate any in-flight run
-
-  if (!pageTranslationEnabled) {
-    removeAllTranslations(document); // restore the original page (ADR-002)
-    return { enabled: false };
-  }
-  void translatePage(runToken); // batches inject progressively as replies land
-  return { enabled: true };
-}
+const pageController = new PageTranslationController({
+  sendMessage: (message) =>
+    chrome.runtime.sendMessage(message) as Promise<TranslationResponse | undefined>,
+  root: document,
+});
 
 function isContentMessage(message: unknown): message is ContentMessage {
   if (typeof message !== 'object' || message === null) return false;
@@ -197,9 +160,9 @@ function isContentMessage(message: unknown): message is ContentMessage {
 chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse) => {
   if (!isContentMessage(message)) return false;
   if (message.type === 'get-page-translation-state') {
-    sendResponse({ enabled: pageTranslationEnabled } satisfies ContentMessageResult);
+    sendResponse({ enabled: pageController.isEnabled() } satisfies ContentMessageResult);
     return false;
   }
-  void togglePageTranslation().then((result) => sendResponse(result));
+  void pageController.toggle().then((result) => sendResponse(result));
   return true; // keep the channel open for the async response
 });

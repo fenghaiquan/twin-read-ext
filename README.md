@@ -56,7 +56,7 @@ npm run gate     # 宪法关卡：tsc + eslint + vitest + depcruise，必须全�
 | **1** | 配置中心 + LLM 通信基建（options 页、`llm-client.ts`） | 填入 Qwen API Key 点「测试连接」能收到模型回复 | ✅（待人工验收，见 [docs/acceptance/sprint-1.md](docs/acceptance/sprint-1.md)） |
 | **2** | 上下文划词取义（mouseup 监听、Shadow DOM 浮窗） | 复杂网页选中多义词，浮窗给出语境化释义且样式不变形 | ✅（待人工验收，见 [docs/acceptance/sprint-2.md](docs/acceptance/sprint-2.md)） |
 | **3** | DOM 解析纯函数（`extractTextNodes` / `chunkTextNodes`，TDD） | 单元测试覆盖脏标签 HTML 用例，100% 通过 | ✅（55/55，见 [docs/acceptance/sprint-3.md](docs/acceptance/sprint-3.md)） |
-| **4** | 整页对照注入 + 并发控制（popup 开关、批请求队列） | 点击开关后段落逐步出现中文对照，原页面交互不崩溃 | ✅（待人工验收，见 [docs/acceptance/sprint-4.md](docs/acceptance/sprint-4.md)） |
+| **4.1** | 整页翻译体验优化（块级锚点、译文换行、翻译中标示、同页缓存、视口懒翻译） | 译文在原文下方独立成行，滚动触发懒翻译，关→开即时恢复 | ✅（待人工验收，见 [docs/acceptance/sprint-4.1.md](docs/acceptance/sprint-4.1.md)） |
 
 每完成一个 Sprint，对照检查：
 

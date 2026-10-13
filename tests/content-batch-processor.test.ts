@@ -1,47 +1,51 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest';
 import {
-  chunkTextNodes,
+  chunkBlocks,
   DEFAULT_BATCH_SIZE,
   MAX_BATCH_CHARS,
 } from '../src/content/batch-processor';
+import type { BlockTarget } from '../src/content/dom-parser';
 
-function makeNodes(texts: string[]): Text[] {
-  return texts.map((text) => document.createTextNode(text));
+function makeBlocks(texts: string[]): BlockTarget[] {
+  return texts.map((text) => ({
+    element: document.createElement('p'),
+    text,
+  }));
 }
 
-describe('chunkTextNodes', () => {
-  it('returns an empty list for no nodes', () => {
-    expect(chunkTextNodes([])).toEqual([]);
+describe('chunkBlocks', () => {
+  it('returns an empty list for no blocks', () => {
+    expect(chunkBlocks([])).toEqual([]);
   });
 
-  it('splits nodes into batches of at most batchSize', () => {
-    const nodes = makeNodes(Array.from({ length: 45 }, (_, i) => `text ${i}`));
-    const batches = chunkTextNodes(nodes, 20, 10_000);
+  it('splits blocks into batches of at most batchSize', () => {
+    const blocks = makeBlocks(Array.from({ length: 45 }, (_, i) => `text ${i}`));
+    const batches = chunkBlocks(blocks, 20, 10_000);
     expect(batches.map((batch) => batch.texts.length)).toEqual([20, 20, 5]);
   });
 
   it('starts a new batch when the character budget is exceeded', () => {
-    const nodes = makeNodes(['a'.repeat(100), 'b'.repeat(100), 'c'.repeat(150)]);
+    const blocks = makeBlocks(['a'.repeat(100), 'b'.repeat(100), 'c'.repeat(150)]);
     // budget 200 chars: [a(100)+b(100)] then c(150) alone
-    const batches = chunkTextNodes(nodes, 20, 200);
+    const batches = chunkBlocks(blocks, 20, 200);
     expect(batches.map((batch) => batch.texts.length)).toEqual([2, 1]);
   });
 
-  it('puts one oversized node into its own batch rather than dropping it', () => {
-    const nodes = makeNodes(['short', 'x'.repeat(500)]);
-    const batches = chunkTextNodes(nodes, 20, 300);
+  it('puts one oversized block into its own batch rather than dropping it', () => {
+    const blocks = makeBlocks(['short', 'x'.repeat(500)]);
+    const batches = chunkBlocks(blocks, 20, 300);
     expect(batches.map((batch) => batch.texts.length)).toEqual([1, 1]);
     expect(batches[1]?.texts[0]).toBe('x'.repeat(500));
   });
 
-  it('keeps node references aligned with texts for 1:1 injection (ADR-002)', () => {
-    const nodes = makeNodes(['aa', 'bb', 'cc']);
-    const batches = chunkTextNodes(nodes, 2, 10_000);
-    expect(batches[0]?.nodes).toEqual([nodes[0], nodes[1]]);
-    expect(batches[0]?.nodes[0]).toBe(nodes[0]); // same reference, not a clone
+  it('keeps anchor references aligned with texts for 1:1 injection (ADR-004)', () => {
+    const blocks = makeBlocks(['aa', 'bb', 'cc']);
+    const batches = chunkBlocks(blocks, 2, 10_000);
+    expect(batches[0]?.anchors).toEqual([blocks[0]!.element, blocks[1]!.element]);
+    expect(batches[0]?.anchors[0]).toBe(blocks[0]!.element); // same reference, not a clone
     expect(batches[0]?.texts).toEqual(['aa', 'bb']);
-    expect(batches[1]?.nodes).toEqual([nodes[2]]);
+    expect(batches[1]?.anchors).toEqual([blocks[2]!.element]);
   });
 
   it('uses sensible defaults', () => {
