@@ -2,7 +2,7 @@
 
 > *English summary: Twin Read collects no user data whatsoever — no analytics, no telemetry, no uploads. Web/selection text is sent only when you explicitly trigger a translation, directly from your browser to the LLM API service you configure. Your API key is stored locally in `chrome.storage.local` and never leaves your device except to your own provider.*
 
-最后更新：2025-10 · 适用版本：v0.1.0+
+最后更新：2025-10 · 适用版本：v0.2.0+
 
 ## 数据收集
 
@@ -36,7 +36,8 @@
 | `storage` | 在本机保存你的提供商配置（API Key 等） |
 | `activeTab` | 获取当前标签页状态，用于整页翻译开关通信 |
 | Content Script（注入所有 http/https 页面） | 读取页面文本并注入译文；仅在触发翻译时读取内容 |
-| Host Permission（默认仅 DashScope 域名） | 允许 Service Worker 向你配置的 API 端点发起请求；更换提供商时需自行添加对应域名 |
+| Host Permission（默认仅 DashScope 域名） | 允许 Service Worker 向你配置的 API 端点发起请求 |
+| 可选域名授权（`optional_host_permissions`） | 当你配置非默认服务商时，保存设置会触发浏览器弹窗，**仅在你确认后**才授权访问该域名；可在 Chrome 设置 → 扩展 → Twin Read 中随时撤销 |
 
 ## 联系与修订
 

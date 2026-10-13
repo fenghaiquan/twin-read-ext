@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Chrome](https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/develop/migrate)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](tsconfig.json)
-[![Tests](https://img.shields.io/badge/tests-89%2F89-brightgreen)](#%EF%B8%8F-%E5%BC%80%E5%8F%91)
+[![Tests](https://img.shields.io/badge/tests-113%2F113-brightgreen)](#%EF%B8%8F-%E5%BC%80%E5%8F%91)
 
 *A lightweight immersive bilingual reading extension for Chrome, powered by any OpenAI-compatible LLM (default: Qwen).*
 
@@ -40,7 +40,7 @@ Twin Read 让你用一套自己的 API Key，在任意网页获得「原文 + �
 
 ### 🔧 任意 OpenAI 兼容提供商
 
-默认对接阿里云百炼（DashScope）的 Qwen 系列模型，也可以切换到任何兼容 OpenAI ChatCompletions 格式的服务（DeepSeek、Kimi、本地 Ollama 等）。
+设置页内置常用平台预设——阿里云百炼（Qwen，默认）/ DeepSeek / Kimi / 智谱 GLM / OpenAI / 本地 Ollama——选择即自动填充 Base URL 与默认模型，并附「获取 API Key」直达链接；填好 Key 后点「获取模型列表」可直接拉取该平台全部可用模型，下拉选择免手填。也可切换到任何兼容 OpenAI ChatCompletions 格式的其他服务（本地 Ollama 无需 Key）。
 
 ## 📸 效果预览
 
@@ -67,6 +67,8 @@ npm install
 npm run build
 ```
 
+或直接从 [Releases](../../releases) 下载最新 zip，解压后同样方式加载（无需 Node 环境）。
+
 打开 `chrome://extensions` → 开启右上角**开发者模式** → **加载已解压的扩展程序** → 选择项目的 `dist/` 目录。
 
 ### 2. 配置模型
@@ -75,7 +77,7 @@ npm run build
 2. 点击扩展图标 → **设置**，填入 Base URL / API Key / 模型名（已预填 Qwen 默认值）
 3. 点击**测试连接**，收到模型回复即配置成功
 
-> **切换其他提供商**：在设置页修改 Base URL 与模型名即可；由于 MV3 Service Worker 受 CORS 限制，需同时在 `manifest.json` 的 `host_permissions` 中添加对应域名并重新 `npm run build`。
+> **切换其他提供商**：在设置页修改 Base URL 与模型名即可；保存时浏览器会弹窗申请该域名的访问授权（可选权限，一次性确认，可在 Chrome 设置中随时撤销）。
 
 ### 3. 使用
 
@@ -115,7 +117,7 @@ npm run gate     # 宪法关卡：tsc + eslint + vitest + depcruise，必须全�
 
 1. `tsc --noEmit` —— TypeScript `strict: true` 全量类型检查
 2. `eslint . --max-warnings=0` —— 零警告，含 `complexity ≤ 10` 复杂度上限
-3. `vitest run` —— 单元测试（当前 **89/89**，覆盖 DOM 解析、分批、注入、划词、浮窗、LLM 解析、并发队列）
+3. `vitest run` —— 单元测试（当前 **113/113**，覆盖 DOM 解析、分批、注入、划词、浮窗、LLM 解析、并发队列、域名权限、平台预设与模型列表解析）
 4. `depcruise` —— 依赖边界校验（见上表约束）
 
 ```
@@ -127,7 +129,7 @@ npm run gate     # 宪法关卡：tsc + eslint + vitest + depcruise，必须全�
 │  ├─ content/       # DOM 解析、分批、注入、划词、浮窗
 │  ├─ options/       # 设置页
 │  └─ popup/         # 工具栏弹窗
-├─ tests/            # 8 个测试文件，89 个用例
+├─ tests/            # 10 个测试文件，113 个用例
 └─ docs/
    ├─ adr/           # 4 份架构决策记录
    └─ acceptance/    # 每个 Sprint 的人工验收清单
