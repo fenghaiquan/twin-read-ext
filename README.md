@@ -1,66 +1,151 @@
+<div align="center">
+
 # Twin Read
 
-一个轻量级「沉浸式双语翻译」Chrome 扩展（Manifest V3），由大模型驱动，默认支持阿里云百炼（DashScope）的 Qwen 系列模型。
+**轻量级沉浸式双语翻译 Chrome 扩展 · 大模型驱动**
 
-## 核心功能
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Chrome](https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/develop/migrate)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](tsconfig.json)
+[![Tests](https://img.shields.io/badge/tests-89%2F89-brightgreen)](#%EF%B8%8F-%E5%BC%80%E5%8F%91)
 
-1. **整页对照式翻译** —— 提取页面 DOM 文本，批量请求翻译，原位置注入双语对照节点（不破坏宿主页面交互）。
-2. **基于上下文的划词取义** —— 选中文字后右下角显示粉色圆点指示器，点击圆点展开翻译面板。根据选词长度自动切换模式：
-   - **单词模式**（≤3 词）：显示单词标题 + 词性释义 + 上下文解释
-   - **段落模式**（长文本）：上方灰色背景显示原文 + 下方加粗显示中文翻译
-3. **基于 API Key 的模型配置** —— 兼容 OpenAI ChatCompletions 格式，默认 Qwen，可切换任意兼容提供商。
+*A lightweight immersive bilingual reading extension for Chrome, powered by any OpenAI-compatible LLM (default: Qwen).*
 
-## 架构概览
+</div>
 
-| 模块 | 职责边界 | 通信契约 |
+---
+
+Twin Read 让你用一套自己的 API Key，在任意网页获得「原文 + 译文」对照阅读体验：整页翻译保持原文排版与格式对齐，划词取义基于上下文给出语境化释义——不发请求到第三方中转服务，**你的 Key 只属于你**。
+
+## ✨ 特性
+
+### 🌐 整页对照式翻译
+
+- **格式对齐**：译文在原文下方独立成行，字体、字号、行高、对齐与排版宽度均与原文一致
+- **视口懒翻译**：基于 IntersectionObserver，只翻译正在阅读的段落（底部 600px 预加载），长页面不浪费 token
+- **批量请求**：按「块数 ≤ 20 / 字符 ≤ 2000」双预算分批，后台最多 3 并发
+- **同页缓存**：关闭再开启即时恢复译文，零重复请求
+- **不破坏页面**：`insertBefore` 兄弟节点注入，跳过 `code` / `pre` / 隐藏元素，可一键完全还原
+
+### 🔍 上下文划词取义
+
+选中文字后出现粉色圆点指示器，点击展开释义卡片，按选区长度自动切换模式：
+
+| 模式 | 触发条件 | 卡片内容 |
 | :--- | :--- | :--- |
-| `src/background` | 后台 Service Worker。**所有外发 HTTP 请求**、并发控制、配置读取。禁止操作 DOM。 | 监听/响应 `TranslationRequest` |
-| `src/content` | 注入目标网页。DOM 遍历、划词监听、Shadow DOM 浮窗、双语注入。**禁止直接发网络请求**。 | `chrome.runtime.sendMessage` |
-| `src/options` | 设置页 UI。API Key / Base URL / Model 配置，读写 `chrome.storage.local`。 | `ProviderSettings` |
-| `src/popup` | 弹出面板。整页翻译开关。 | 控制指令 |
-| `packages/shared` | 纯类型与常量契约。**禁止依赖任何 src 代码。** | `types.ts` |
+| **单词模式** | ≤ 3 词 | 词性 + 释义 + **结合所在段落的语境解释**（多义词不再张冠李戴） |
+| **段落模式** | 长文本 | 原文对照 + 中文翻译 |
 
-架构决策见 [docs/adr/](docs/adr/)：
+卡片使用 closed Shadow DOM 渲染，宿主页面样式无法污染它，它也不会污染宿主页面。
 
-- [ADR-001: OpenAI 兼容 API 通信](docs/adr/ADR-001-openai-compatible-api-communication.md)
-- [ADR-002: DOM 节点注入策略](docs/adr/ADR-002-dom-node-injection-strategy.md)
-- [ADR-003: Shadow DOM UI 隔离](docs/adr/ADR-003-shadow-dom-ui-isolation.md)
+### 🔧 任意 OpenAI 兼容提供商
 
-## 开发
+默认对接阿里云百炼（DashScope）的 Qwen 系列模型，也可以切换到任何兼容 OpenAI ChatCompletions 格式的服务（DeepSeek、Kimi、本地 Ollama 等）。
+
+## 📸 效果预览
+
+### 整页对照翻译
+
+![整页对照翻译：段落末尾旋转加载圈 → 译文与原文同格式对齐展示](docs/screenshots/page-translation.png)
+
+### 划词取义 - 段落模式
+
+![划词 - 段落模式：长文本选区展示原文与译文对照](docs/screenshots/selection-paragraph.png)
+
+### 划词取义 - 单词模式
+
+![划词 - 单词模式：多义词非确定性的语境化释义（结合所在段落上下文）](docs/screenshots/selection-word.png)
+
+## 🚀 快速开始
+
+### 1. 安装扩展
 
 ```bash
+git clone https://github.com/fenghaiquan/twin-read-ext.git
+cd twin-read-ext
 npm install
-npm run dev      # CRXJS 开发模式（HMR）
+npm run build
+```
+
+打开 `chrome://extensions` → 开启右上角**开发者模式** → **加载已解压的扩展程序** → 选择项目的 `dist/` 目录。
+
+### 2. 配置模型
+
+1. 获取 API Key：以 Qwen 为例，前往 [阿里云百炼控制台](https://bailian.console.aliyun.com/) 开通并创建 API Key
+2. 点击扩展图标 → **设置**，填入 Base URL / API Key / 模型名（已预填 Qwen 默认值）
+3. 点击**测试连接**，收到模型回复即配置成功
+
+> **切换其他提供商**：在设置页修改 Base URL 与模型名即可；由于 MV3 Service Worker 受 CORS 限制，需同时在 `manifest.json` 的 `host_permissions` 中添加对应域名并重新 `npm run build`。
+
+### 3. 使用
+
+| 操作 | 效果 |
+| :--- | :--- |
+| 点击扩展图标 → **开启整页翻译** | 当前页面逐段展示「原文 / 译文」对照，滚动到哪翻译到哪 |
+| 网页中**选中一段文字** | 出现粉色圆点，点击展开释义卡片 |
+
+## 🏗️ 架构
+
+五层单向依赖，职责边界由 dependency-cruiser 在 CI 关卡强制执行：
+
+| 模块 | 职责 | 关键约束 |
+| :--- | :--- | :--- |
+| `packages/shared` | 类型契约与常量 | 禁止依赖任何 `src/` 代码 |
+| `packages/core-llm` | Prompt 组装 / 请求构造 / 响应解析（纯函数） | 无副作用，不感知浏览器 API |
+| `src/background` | Service Worker：**唯一网络出口**、并发限流（≤ 3）、配置读取 | 禁止操作 DOM |
+| `src/content` | DOM 遍历、划词监听、双语注入、Shadow DOM 浮窗 | **禁止直接发网络请求** |
+| `src/options` / `src/popup` | 设置页 / 整页翻译开关 | 经消息契约与 background 通信 |
+
+关键架构决策（ADR）：
+
+- [ADR-001 — OpenAI 兼容 API 通信](docs/adr/ADR-001-openai-compatible-api-communication.md)
+- [ADR-002 — DOM 节点注入策略](docs/adr/ADR-002-dom-node-injection-strategy.md)
+- [ADR-003 — Shadow DOM UI 隔离](docs/adr/ADR-003-shadow-dom-ui-isolation.md)
+- [ADR-004 — 块级锚点与视口懒翻译](docs/adr/ADR-004-block-level-anchor-and-viewport-lazy-translation.md)
+
+## 🔧 开发
+
+```bash
+npm run dev      # 开发模式（CRXJS HMR）
 npm run build    # 类型检查 + 产出 dist/
 npm run gate     # 宪法关卡：tsc + eslint + vitest + depcruise，必须全绿
 ```
-
-加载扩展：Chrome → `chrome://extensions` → 开发者模式 → 「加载已解压的扩展程序」→ 选择 `dist/`。
-
-### Gate（宪法）
 
 `npm run gate` 依次执行：
 
 1. `tsc --noEmit` —— TypeScript `strict: true` 全量类型检查
 2. `eslint . --max-warnings=0` —— 零警告，含 `complexity ≤ 10` 复杂度上限
-3. `vitest run` —— 单元测试
-4. `depcruise src packages` —— 依赖边界（content/ui 不得 import background 内部；shared 不得依赖 src）
+3. `vitest run` —— 单元测试（当前 **89/89**，覆盖 DOM 解析、分批、注入、划词、浮窗、LLM 解析、并发队列）
+4. `depcruise` —— 依赖边界校验（见上表约束）
 
-**每个 Sprint 提交前 gate 必须全绿，且只允许修改当前 Sprint 涉及的模块。**
+```
+├─ packages/
+│  ├─ shared/        # 类型契约
+│  └─ core-llm/      # LLM 纯逻辑（prompt / chat / parse）
+├─ src/
+│  ├─ background/    # Service Worker（网络、并发、队列）
+│  ├─ content/       # DOM 解析、分批、注入、划词、浮窗
+│  ├─ options/       # 设置页
+│  └─ popup/         # 工具栏弹窗
+├─ tests/            # 8 个测试文件，89 个用例
+└─ docs/
+   ├─ adr/           # 4 份架构决策记录
+   └─ acceptance/    # 每个 Sprint 的人工验收清单
+```
 
-## 构建计划（Sprint 路线）
+## 🗺️ 项目历程
 
-| Sprint | 目标 | 交付证明 (Proof) | 状态 |
-| :--- | :--- | :--- | :--- |
-| **0** | 基础设施：脚手架、类型契约、Gate | `npm run gate` 全绿；`dist/` 可被 Chrome 无报错加载 | ✅ |
-| **1** | 配置中心 + LLM 通信基建（options 页、`llm-client.ts`） | 填入 Qwen API Key 点「测试连接」能收到模型回复 | ✅ 已验收（[docs/acceptance/sprint-1.md](docs/acceptance/sprint-1.md)） |
-| **2** | 上下文划词取义（mouseup 监听、Shadow DOM 浮窗） | 复杂网页选中多义词，浮窗给出语境化释义且样式不变形 | ✅ 已验收（[docs/acceptance/sprint-2.md](docs/acceptance/sprint-2.md)） |
-| **3** | DOM 解析纯函数（`extractTextNodes` / `chunkTextNodes`，TDD） | 单元测试覆盖脏标签 HTML 用例，100% 通过 | ✅（55/55，见 [docs/acceptance/sprint-3.md](docs/acceptance/sprint-3.md)） |
-| **4.1** | 整页翻译体验优化（块级锚点、译文换行、段末旋转加载圈、同页缓存、视口懒翻译、译文格式与原文对齐） | 译文在原文下方同格式对齐展示，滚动懒翻译，关→开即时恢复 | ✅ 已验收（[docs/acceptance/sprint-4.1.md](docs/acceptance/sprint-4.1.md)） |
+项目按 Sprint 迭代交付，每个阶段附带可执行的人工验收清单（[docs/acceptance/](docs/acceptance/)）：
 
-每完成一个 Sprint，对照检查：
+| 阶段 | 交付 | 验收 |
+| :--- | :--- | :--- |
+| Sprint 0 | 脚手架、类型契约、质量关卡 | ✅ |
+| Sprint 1 | 设置页 + LLM 通信基建 | ✅ [验收记录](docs/acceptance/sprint-1.md) |
+| Sprint 2 | 上下文划词取义 | ✅ [验收记录](docs/acceptance/sprint-2.md) |
+| Sprint 3 | DOM 解析与分批纯函数（TDD） | ✅ [验收记录](docs/acceptance/sprint-3.md) |
+| Sprint 4 | 整页对照翻译与系统组装 | ✅ [验收记录](docs/acceptance/sprint-4.md) |
+| Sprint 4.1 | 块级锚点、懒翻译、缓存、格式对齐 | ✅ [验收记录](docs/acceptance/sprint-4.1.md) |
 
-- [ ] 代码只修改了当前 Sprint 的模块（未越界）
-- [ ] `npm run gate` 无任何警告
-- [ ] 实际加载扩展完成本阶段手动 Proof
-- [ ] 新增架构决策已更新 `docs/adr/`
+## 📜 License
+
+[MIT](LICENSE) © 2026 冯海泉
