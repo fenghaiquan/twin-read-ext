@@ -10,7 +10,8 @@
 
 const HOST_ID = 'twin-read-panel-host';
 const DOT_SIZE = 12;
-const DOT_OFFSET = 4; // gap between selection rect and the dot
+const DOT_OFFSET = 4; // gap between the last word and the dot
+const PANEL_GAP = 6; // gap between the selection and the panel
 const PANEL_MAX_WIDTH = 420;
 const PANEL_MAX_HEIGHT = 400;
 
@@ -240,34 +241,30 @@ function positionElement(
   let top: number;
 
   if (placement === 'dot') {
-    // Small dot hugging the bottom-right corner of the selection
+    // Inline right after the last word of the selection, vertically
+    // centered on the last line (rect is the last line fragment).
     left = rect.right + DOT_OFFSET;
-    top = rect.bottom + DOT_OFFSET;
+    top = rect.top + (rect.height - DOT_SIZE) / 2;
 
     // Clamp to viewport
     if (left + DOT_SIZE > viewportWidth - DOT_OFFSET) {
-      left = rect.left;
+      left = Math.max(rect.left - DOT_SIZE - DOT_OFFSET, DOT_OFFSET);
     }
-    if (top + DOT_SIZE > viewportHeight - DOT_OFFSET) {
-      top = rect.top - DOT_SIZE - DOT_OFFSET;
-    }
+    top = Math.min(Math.max(top, DOT_OFFSET), viewportHeight - DOT_SIZE - DOT_OFFSET);
   } else {
-    // Panel below dot
-    left = rect.right + margin;
-    top = rect.bottom + DOT_SIZE + margin * 2;
+    // Card below the selection, left-aligned with it (reference layout)
+    left = rect.left;
+    top = rect.bottom + PANEL_GAP;
 
     const width = element.offsetWidth || PANEL_MAX_WIDTH;
     const height = element.offsetHeight || 200;
 
     // Clamp right edge
     if (left + width > viewportWidth - margin) {
-      left = viewportWidth - width - margin;
-    }
-    if (left < margin) {
-      left = margin;
+      left = Math.max(viewportWidth - width - margin, margin);
     }
 
-    // Flip if below viewport
+    // Flip above the selection if the card would overflow the viewport bottom
     if (top + height > viewportHeight - margin && rect.top - height - margin > 0) {
       top = rect.top - height - margin;
     }

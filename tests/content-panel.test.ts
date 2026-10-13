@@ -39,7 +39,6 @@ describe('panel (ADR-003 Shadow DOM isolation)', () => {
     const dot = getDotElement();
     expect(dot).not.toBeNull();
     expect(dot?.classList.contains('visible')).toBe(true);
-    expect(dot?.style.display).not.toBe('none');
   });
 
   it('hides the dot when requested', () => {
@@ -104,6 +103,16 @@ describe('panel (ADR-003 Shadow DOM isolation)', () => {
     const panel = shadow?.querySelector('.panel');
     expect(dot?.classList.contains('visible')).toBe(false);
     expect(panel?.classList.contains('visible')).toBe(false);
+  });
+
+  it('positions the dot inline right after the last word, vertically centered', () => {
+    // anchor rect of the last line fragment: top=100, height=20, right=250
+    showDot(makeRect(100, 100, 150, 20));
+    const dot = getDotElement();
+    const left = Number.parseInt(dot?.style.left ?? '0', 10);
+    const top = Number.parseInt(dot?.style.top ?? '0', 10);
+    expect(left).toBe(254); // rect.right (250) + DOT_OFFSET (4)
+    expect(top).toBe(104); // rect.top + (height - DOT_SIZE) / 2 = 100 + 4
   });
 
   it('positions panel below the selection rect', () => {

@@ -41,6 +41,21 @@ function getSelectionRect(): DOMRect | null {
   return rect.width === 0 && rect.height === 0 ? null : rect;
 }
 
+/**
+ * Last line fragment of the selection (from range.getClientRects()):
+ * its right edge is where the last selected word ends — the inline spot
+ * right after the last word, used to place the dot.
+ */
+function getSelectionAnchorRect(): DOMRect | null {
+  const selection = window.getSelection();
+  if (selection === null || selection.rangeCount === 0) return null;
+  const rects = Array.from(selection.getRangeAt(0).getClientRects());
+  const last = rects[rects.length - 1];
+  if (last !== undefined && (last.width > 0 || last.height > 0)) return last;
+  const rect = selection.getRangeAt(0).getBoundingClientRect();
+  return rect.width === 0 && rect.height === 0 ? null : rect;
+}
+
 function hideAll(): void {
   pendingRequest = null;
   pendingRect = null;
@@ -97,14 +112,15 @@ document.addEventListener('mouseup', (event: MouseEvent) => {
     return;
   }
   const rect = getSelectionRect();
-  if (rect === null) {
+  const anchor = getSelectionAnchorRect();
+  if (rect === null || anchor === null) {
     hideAll();
     return;
   }
 
   pendingRequest = request;
   pendingRect = rect;
-  showDot(rect);
+  showDot(anchor);
 });
 
 document.addEventListener('mousedown', (event: MouseEvent) => {

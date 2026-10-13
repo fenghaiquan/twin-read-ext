@@ -8,15 +8,16 @@ import type { TranslationRequest } from '@shared/types';
 import type { ChatMessage } from './chat';
 
 const WORD_SYSTEM_PROMPT =
-  '你是翻译专家，擅长根据上下文给出词汇/短语最准确的释义。回答格式：第一行给出“词性. 中文释义”（如 adv. 故意地；蓄意地），第二行起用一句话解释该词在当前上下文中的具体含义。';
+  '你是翻译专家，擅长根据上下文给出词汇/短语最准确的释义。只针对「选中的内容」回答；上下文仅用于理解语义，不要翻译或解释上下文。回答格式：第一行给出“词性. 中文释义”（如 adv. 故意地；蓄意地），第二行起用一句话解释该词在当前上下文中的具体含义。';
 
 const PARAGRAPH_SYSTEM_PROMPT =
-  '你是专业的网页翻译器，将外语文本翻译为流畅自然的中文，保持原文语气与格式。只输出翻译结果，不要添加任何解释。';
+  '你是专业的翻译器。只翻译「选中的内容」；「上下文」仅用于理解语义以便翻译更准确，绝对不要翻译或输出上下文。只输出选中内容的中文翻译，不要添加任何解释。';
 
 const FULL_PAGE_SYSTEM_PROMPT =
   '你是专业的网页翻译器，将外语文本翻译为流畅自然的中文，保持原文语气与格式。只输出翻译结果，不要添加任何解释。';
 
-const SELECTION_USER_TEMPLATE = '选中的内容：【{selected}】\n它所在的上下文：【{context}】';
+const SELECTION_USER_TEMPLATE =
+  '请翻译选中的内容：\n【{selected}】\n\n上下文（仅供参考，禁止翻译它）：\n【{context}】';
 
 function selectionContext(request: TranslationRequest): string {
   return (request.context ?? '').trim() || '（无上下文）';

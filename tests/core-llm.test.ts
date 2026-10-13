@@ -44,6 +44,21 @@ describe('translation prompt building', () => {
     expect(user?.content).toContain('Apple announced a new MacBook Pro today.');
   });
 
+  it('paragraph prompts explicitly forbid translating the context', () => {
+    const request: TranslationRequest = {
+      id: 'sel-p',
+      type: 'selection',
+      texts: ['The selected sentence to translate.'],
+      context: 'A much longer paragraph that also contains the selected sentence plus other sentences around it.',
+    };
+    const all = buildTranslationMessages(request)
+      .map((message) => message.content)
+      .join('\n');
+    expect(all).toContain('禁止翻译');
+    expect(all).toContain('The selected sentence to translate.');
+    expect(all).toContain('A much longer paragraph');
+  });
+
   it('falls back to a placeholder when no context is available', () => {
     const request: TranslationRequest = { id: 'sel-2', type: 'selection', texts: ['bank'] };
     expect(buildTranslationMessages(request).at(-1)?.content).toContain('（无上下文）');
