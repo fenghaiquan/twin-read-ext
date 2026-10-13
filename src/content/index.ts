@@ -148,7 +148,7 @@ document.addEventListener('twin-read-dot-clicked', () => {
 const pageController = new PageTranslationController({
   sendMessage: (message) =>
     chrome.runtime.sendMessage(message) as Promise<TranslationResponse | undefined>,
-  root: document,
+  root: document.documentElement,
 });
 
 function isContentMessage(message: unknown): message is ContentMessage {
