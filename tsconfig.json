@@ -17,8 +17,9 @@
     "skipLibCheck": true,
     "noEmit": true,
     "paths": {
-      "@shared/*": ["./packages/shared/*"]
+      "@shared/*": ["./packages/shared/*"],
+      "@core-llm/*": ["./packages/core-llm/*"]
     }
   },
-  "include": ["src", "packages", "tests", "vite.config.ts", "vitest.config.ts", "eslint.config.js", "manifest.json"]
+  "include": ["src", "packages", "tests", "manifest.json"]
 }

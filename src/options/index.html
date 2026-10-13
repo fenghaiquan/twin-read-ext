@@ -4,10 +4,100 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Twin Read 设置</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        max-width: 560px;
+        margin: 40px auto;
+        padding: 0 16px;
+        line-height: 1.6;
+      }
+      h1 {
+        font-size: 1.4rem;
+      }
+      fieldset {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin-bottom: 16px;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        margin-top: 12px;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 6px 8px;
+        margin-top: 4px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font: inherit;
+      }
+      .buttons {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+      }
+      button {
+        padding: 6px 16px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        font: inherit;
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: wait;
+      }
+      #status {
+        margin-top: 12px;
+        min-height: 1.6em;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      #status.ok {
+        color: #1a7f37;
+      }
+      #status.error {
+        color: #d1242f;
+      }
+      #status.pending {
+        color: #9a6700;
+      }
+      .hint {
+        color: #888;
+        font-size: 0.85rem;
+        margin-top: 12px;
+      }
+    </style>
   </head>
   <body>
-    <h1>Twin Read</h1>
-    <p>设置页占位 —— 将在 Sprint 1 中实现 API Key / Base URL / Model 配置。</p>
+    <h1>Twin Read 设置</h1>
+    <fieldset>
+      <legend>模型提供商（OpenAI 兼容格式，默认 Qwen / 阿里云百炼）</legend>
+      <label for="base-url">Base URL</label>
+      <input id="base-url" type="text" placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1" />
+      <label for="api-key">API Key</label>
+      <input id="api-key" type="password" placeholder="sk-..." autocomplete="off" />
+      <label for="model">模型名称</label>
+      <input id="model" type="text" list="model-suggestions" placeholder="qwen-plus" />
+      <datalist id="model-suggestions">
+        <option value="qwen-max"></option>
+        <option value="qwen-plus"></option>
+        <option value="qwen-turbo"></option>
+        <option value="qwen-flash"></option>
+      </datalist>
+      <p class="hint">API Key 仅保存在本机 chrome.storage.local，不会上传到任何服务器。</p>
+    </fieldset>
+    <div class="buttons">
+      <button id="save-btn" type="button">保存设置</button>
+      <button id="test-btn" type="button">测试连接</button>
+    </div>
+    <p id="status" role="status"></p>
     <script type="module" src="./main.ts"></script>
   </body>
 </html>

@@ -26,10 +26,25 @@ module.exports = {
       to: { path: '^src/background' },
     },
     {
-      name: 'shared-stays-pure',
-      comment: 'packages/shared must not depend on extension implementation code.',
+      name: 'content-not-import-core-llm',
+      comment:
+        'Content scripts must not build prompts themselves; core-llm is only reachable via the background service worker.',
       severity: 'error',
-      from: { path: '^packages/shared' },
+      from: { path: '^src/content' },
+      to: { path: '^packages/core-llm' },
+    },
+    {
+      name: 'ui-not-import-core-llm',
+      comment: 'Options/popup must not import core-llm; they talk to the provider only via the background service worker.',
+      severity: 'error',
+      from: { path: '^(src/options|src/popup)' },
+      to: { path: '^packages/core-llm' },
+    },
+    {
+      name: 'packages-stay-pure',
+      comment: 'Shared type/LLM-logic packages must not depend on extension implementation code.',
+      severity: 'error',
+      from: { path: '^packages/' },
       to: { path: '^src/' },
     },
   ],

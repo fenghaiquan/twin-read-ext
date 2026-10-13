@@ -38,3 +38,27 @@ export interface TranslationResponse {
   translatedTexts: string[];
   errorMessage?: string;
 }
+
+/** Contract 4: messages sent to the background service worker. */
+export interface TestConnectionMessage {
+  type: 'test-connection';
+}
+
+export interface TranslateMessage {
+  type: 'translate';
+  request: TranslationRequest;
+}
+
+export type BackgroundMessage = TestConnectionMessage | TranslateMessage;
+
+/** Result of a 'test-connection' message. */
+export interface TestConnectionResult {
+  success: boolean;
+  reply?: string;
+  errorMessage?: string;
+}
+
+/** chrome.storage.local keys owned by this extension. */
+export const STORAGE_KEYS = {
+  providerSettings: 'providerSettings',
+} as const;

@@ -15,7 +15,16 @@ export default tseslint.config(
     rules: {
       // Constitution: cap function complexity to keep DOM traversal logic sane.
       complexity: ['error', 10],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
     },
+  },
+  {
+    // TS code is type-checked by tsc; no-undef produces false positives for chrome.* etc.
+    files: ['**/*.ts'],
+    rules: { 'no-undef': 'off' },
   },
   {
     // Node-flavored config files (dependency-cruiser, etc.)
