@@ -10,7 +10,7 @@
 
 import type { TranslationRequest, TranslationResponse } from '@shared/types';
 import { extractBlockTargets, type BlockTarget } from './dom-parser';
-import { chunkBlocks } from './batch-processor';
+import { chunkBlocks, type TranslationBatch } from './batch-processor';
 import {
   insertPendingAfter,
   insertTranslationAfter,
@@ -144,55 +144,58 @@ export class PageTranslationController {
 
     const blocks = [...this.pendingBlocks];
     this.pendingBlocks = [];
-
     const batches = chunkBlocks(blocks);
 
     for (const batch of batches) {
-      if (token !== this.runToken) return; // toggled off
-      
-      const request: TranslationRequest = {
-        id: crypto.randomUUID(),
-        type: 'full-page',
-        texts: batch.texts,
-      };
+      if (token !== this.runToken) return;
+      await this.processBatch(batch, token);
+    }
+  }
 
-      try {
-        const response = await this.deps.sendMessage({ type: 'translate', request });
-        if (token !== this.runToken) return; // toggled off during await
+  private async processBatch(batch: TranslationBatch, token: number): Promise<void> {
+    const request: TranslationRequest = {
+      id: crypto.randomUUID(),
+      type: 'full-page',
+      texts: batch.texts,
+    };
 
-        if (!response?.success) {
-          for (const anchor of batch.anchors) {
-            const pending = this.pendingSpans.get(anchor);
-            if (pending) {
-              markFailed(pending);
-              this.pendingSpans.delete(anchor);
-            }
-          }
-          continue;
-        }
+    try {
+      const response = await this.deps.sendMessage({ type: 'translate', request });
+      if (token !== this.runToken) return;
 
-        // Cache and finalize
-        for (const [i, anchor] of batch.anchors.entries()) {
-          const translated = response.translatedTexts[i] ?? '';
-          const originalText = batch.texts[i];
-          if (originalText !== undefined) {
-            this.cache.set(originalText, translated);
-          }
-          const pending = this.pendingSpans.get(anchor);
-          if (pending) {
-            finalizePending(pending, translated);
-            this.pendingSpans.delete(anchor);
-          }
-        }
-      } catch (error) {
-        console.warn('[twin-read] batch request failed:', error);
-        for (const anchor of batch.anchors) {
-          const pending = this.pendingSpans.get(anchor);
-          if (pending) {
-            markFailed(pending);
-            this.pendingSpans.delete(anchor);
-          }
-        }
+      if (!response?.success) {
+        this.markBatchFailed(batch);
+        return;
+      }
+
+      this.finalizeBatch(batch, response.translatedTexts);
+    } catch (error) {
+      console.warn('[twin-read] batch request failed:', error);
+      this.markBatchFailed(batch);
+    }
+  }
+
+  private markBatchFailed(batch: TranslationBatch): void {
+    for (const anchor of batch.anchors) {
+      const pending = this.pendingSpans.get(anchor);
+      if (pending) {
+        markFailed(pending);
+        this.pendingSpans.delete(anchor);
+      }
+    }
+  }
+
+  private finalizeBatch(batch: TranslationBatch, translatedTexts: string[]): void {
+    for (const [i, anchor] of batch.anchors.entries()) {
+      const translated = translatedTexts[i] ?? '';
+      const originalText = batch.texts[i];
+      if (originalText !== undefined) {
+        this.cache.set(originalText, translated);
+      }
+      const pending = this.pendingSpans.get(anchor);
+      if (pending) {
+        finalizePending(pending, translated);
+        this.pendingSpans.delete(anchor);
       }
     }
   }
