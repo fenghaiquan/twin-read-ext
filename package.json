@@ -1,0 +1,28 @@
+{
+  "name": "twin-read-ext",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Twin Read - a lightweight immersive bilingual translation Chrome extension powered by LLMs",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "depcruise": "depcruise src packages --config .dependency-cruiser.cjs",
+    "gate": "tsc --noEmit && eslint . --max-warnings=0 && vitest run && depcruise src packages --config .dependency-cruiser.cjs"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^3.0.0",
+    "@eslint/js": "^10.0.1",
+    "@types/chrome": "^0.3.5",
+    "dependency-cruiser": "^18.6.0",
+    "eslint": "^10.12.0",
+    "globals": "^17.13.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.2",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.4"
+  }
+}

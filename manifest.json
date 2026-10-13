@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Twin Read",
+  "short_name": "TwinRead",
+  "version": "0.1.0",
+  "description": "A lightweight immersive bilingual translation extension powered by LLMs (default: Qwen).",
+  "minimum_chrome_version": "116",
+  "background": {
+    "service_worker": "src/background/index.ts",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["src/content/index.ts"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_ui": {
+    "page": "src/options/index.html",
+    "open_in_tab": true
+  },
+  "action": {
+    "default_title": "Twin Read",
+    "default_popup": "src/popup/index.html"
+  },
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": ["https://dashscope.aliyuncs.com/*"]
+}
