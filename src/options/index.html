@@ -73,6 +73,15 @@
         font-size: 0.85rem;
         margin-top: 12px;
       }
+      .privacy {
+        border-top: 1px solid #eee;
+        padding-top: 12px;
+        margin-top: 24px;
+      }
+      .privacy a {
+        color: inherit;
+        text-decoration: underline;
+      }
     </style>
   </head>
   <body>
@@ -98,6 +107,15 @@
       <button id="test-btn" type="button">测试连接</button>
     </div>
     <p id="status" role="status"></p>
+    <p class="hint privacy">
+      🔒 隐私：本扩展不收集任何用户数据；网页文本仅在触发翻译时直接发送至你配置的 API
+      服务，无埋点、无上传。<a
+        href="https://github.com/fenghaiquan/twin-read-ext/blob/main/PRIVACY.md"
+        target="_blank"
+        rel="noreferrer"
+        >隐私政策</a
+      >
+    </p>
     <script type="module" src="./main.ts"></script>
   </body>
 </html>
