@@ -52,7 +52,7 @@ npm run gate     # 宪法关卡：tsc + eslint + vitest + depcruise，必须全�
 | :--- | :--- | :--- | :--- |
 | **0** | 基础设施：脚手架、类型契约、Gate | `npm run gate` 全绿；`dist/` 可被 Chrome 无报错加载 | ✅ |
 | **1** | 配置中心 + LLM 通信基建（options 页、`llm-client.ts`） | 填入 Qwen API Key 点「测试连接」能收到模型回复 | ✅（待人工验收，见 [docs/acceptance/sprint-1.md](docs/acceptance/sprint-1.md)） |
-| **2** | 上下文划词取义（mouseup 监听、Shadow DOM 浮窗） | 复杂网页选中多义词，浮窗给出语境化释义且样式不变形 | ☐ |
+| **2** | 上下文划词取义（mouseup 监听、Shadow DOM 浮窗） | 复杂网页选中多义词，浮窗给出语境化释义且样式不变形 | ✅（待人工验收，见 [docs/acceptance/sprint-2.md](docs/acceptance/sprint-2.md)） |
 | **3** | DOM 解析纯函数（`extractTextNodes` / `chunkArray`，TDD） | 单元测试覆盖脏标签 HTML 用例，100% 通过 | ☐ |
 | **4** | 整页对照注入 + 并发控制（popup 开关、批请求队列） | 点击开关后段落逐步出现中文对照，原页面交互不崩溃 | ☐ |
 
