@@ -4,7 +4,7 @@
  * Manages full-page translation with:
  * - IntersectionObserver-based lazy translation (viewport-driven)
  * - In-memory cache for instant toggle off→on
- * - Pending markers + finalization flow
+ * - Spinning-circle pending markers at the end of paragraphs
  * - Run-token validation to drop stale responses
  */
 
@@ -12,10 +12,9 @@ import type { TranslationRequest, TranslationResponse } from '@shared/types';
 import { extractBlockTargets, type BlockTarget } from './dom-parser';
 import { chunkBlocks, type TranslationBatch } from './batch-processor';
 import {
-  insertPendingAfter,
+  appendPendingSpinner,
   insertTranslationAfter,
-  finalizePending,
-  markFailed,
+  markSpinnerFailed,
   removeAllTranslations,
 } from './inject';
 
@@ -23,7 +22,10 @@ export const PRELOAD_MARGIN_PX = 600;
 export const FLUSH_DEBOUNCE_MS = 200;
 
 interface ControllerDeps {
-  sendMessage: (message: { type: 'translate'; request: TranslationRequest }) => Promise<TranslationResponse | undefined>;
+  sendMessage: (message: {
+    type: 'translate';
+    request: TranslationRequest;
+  }) => Promise<TranslationResponse | undefined>;
   root: Document | Element;
 }
 
@@ -69,17 +71,14 @@ export class PageTranslationController {
   }
 
   async toggle(): Promise<{ enabled: boolean }> {
-    console.log('[twin-read] PageTranslationController.toggle() called, current enabled:', this.enabled);
     this.enabled = !this.enabled;
     this.runToken += 1;
 
     if (!this.enabled) {
-      console.log('[twin-read] disabling translation, calling shutdown()');
       this.shutdown();
       return { enabled: false };
     }
 
-    console.log('[twin-read] enabling translation, calling startTranslation()');
     void this.startTranslation();
     return { enabled: true };
   }
@@ -97,51 +96,37 @@ export class PageTranslationController {
   }
 
   private async startTranslation(): Promise<void> {
-    console.log('[twin-read] startTranslation() called');
     this.allBlocks = extractBlockTargets(this.deps.root);
-    console.log('[twin-read] extracted block targets:', this.allBlocks.length, 'blocks');
-    
+
     for (const block of this.allBlocks) {
-      // Check cache first
+      // Cache hit: inject instantly, no request, no spinner flash
       const cached = this.cache.get(block.text);
       if (cached) {
-        console.log('[twin-read] using cached translation for block');
         insertTranslationAfter(block.element, cached);
         continue;
       }
-
-      console.log('[twin-read] observing block element');
-      // Observe for lazy translation
+      // Lazy: only translate when the block nears the viewport
       this.observer.observe(block.element);
     }
-    console.log('[twin-read] startTranslation() completed');
   }
 
   private handleIntersection(entries: IntersectionObserverEntry[]): void {
-    console.log('[twin-read] handleIntersection called with', entries.length, 'entries');
     const token = this.runToken;
-    
+
     for (const entry of entries) {
-      console.log('[twin-read] processing entry, isIntersecting:', entry.isIntersecting);
       if (!entry.isIntersecting) continue;
-      
+
       const element = entry.target as Element;
       this.observer.unobserve(element);
-      
-      const block = this.allBlocks.find((b) => b.element === element);
-      if (!block) {
-        console.log('[twin-read] block not found for element, skipping');
-        continue;
-      }
 
-      console.log('[twin-read] inserting pending marker');
-      // Insert pending marker
-      const pending = insertPendingAfter(element);
-      this.pendingSpans.set(element, pending);
+      const block = this.allBlocks.find((b) => b.element === element);
+      if (!block) continue;
+
+      // Small spinning circle at the end of the paragraph
+      const spinner = appendPendingSpinner(element);
+      this.pendingSpans.set(element, spinner);
       this.pendingBlocks.push(block);
 
-      // Debounce flush
-      console.log('[twin-read] scheduling flush');
       this.scheduleFlush(token);
     }
   }
@@ -182,7 +167,6 @@ export class PageTranslationController {
         this.markBatchFailed(batch);
         return;
       }
-
       this.finalizeBatch(batch, response.translatedTexts);
     } catch (error) {
       console.warn('[twin-read] batch request failed:', error);
@@ -192,9 +176,9 @@ export class PageTranslationController {
 
   private markBatchFailed(batch: TranslationBatch): void {
     for (const anchor of batch.anchors) {
-      const pending = this.pendingSpans.get(anchor);
-      if (pending) {
-        markFailed(pending);
+      const spinner = this.pendingSpans.get(anchor);
+      if (spinner) {
+        markSpinnerFailed(spinner);
         this.pendingSpans.delete(anchor);
       }
     }
@@ -207,11 +191,10 @@ export class PageTranslationController {
       if (originalText !== undefined) {
         this.cache.set(originalText, translated);
       }
-      const pending = this.pendingSpans.get(anchor);
-      if (pending) {
-        finalizePending(pending, translated);
-        this.pendingSpans.delete(anchor);
-      }
+      // Swap the spinner for the real translation
+      this.pendingSpans.get(anchor)?.remove();
+      this.pendingSpans.delete(anchor);
+      insertTranslationAfter(anchor, translated);
     }
   }
 }

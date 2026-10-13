@@ -39,11 +39,7 @@ async function sendToActiveTab(
 
 if (toggleButton !== null) {
   toggleButton.addEventListener('click', () => {
-    console.log('[twin-read] toggle button clicked');
-    void sendToActiveTab({ type: 'toggle-page-translation' }).then((result) => {
-      console.log('[twin-read] toggle response:', result);
-      render(result);
-    });
+    void sendToActiveTab({ type: 'toggle-page-translation' }).then(render);
   });
 }
 

@@ -158,16 +158,11 @@ function isContentMessage(message: unknown): message is ContentMessage {
 }
 
 chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse) => {
-  console.log('[twin-read] content script received message:', message);
   if (!isContentMessage(message)) return false;
   if (message.type === 'get-page-translation-state') {
     sendResponse({ enabled: pageController.isEnabled() } satisfies ContentMessageResult);
     return false;
   }
-  console.log('[twin-read] calling pageController.toggle()');
-  void pageController.toggle().then((result) => {
-    console.log('[twin-read] toggle completed:', result);
-    sendResponse(result);
-  });
+  void pageController.toggle().then((result) => sendResponse(result));
   return true; // keep the channel open for the async response
 });
