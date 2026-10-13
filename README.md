@@ -53,10 +53,10 @@ npm run gate     # 宪法关卡：tsc + eslint + vitest + depcruise，必须全�
 | Sprint | 目标 | 交付证明 (Proof) | 状态 |
 | :--- | :--- | :--- | :--- |
 | **0** | 基础设施：脚手架、类型契约、Gate | `npm run gate` 全绿；`dist/` 可被 Chrome 无报错加载 | ✅ |
-| **1** | 配置中心 + LLM 通信基建（options 页、`llm-client.ts`） | 填入 Qwen API Key 点「测试连接」能收到模型回复 | ✅（待人工验收，见 [docs/acceptance/sprint-1.md](docs/acceptance/sprint-1.md)） |
-| **2** | 上下文划词取义（mouseup 监听、Shadow DOM 浮窗） | 复杂网页选中多义词，浮窗给出语境化释义且样式不变形 | ✅（待人工验收，见 [docs/acceptance/sprint-2.md](docs/acceptance/sprint-2.md)） |
+| **1** | 配置中心 + LLM 通信基建（options 页、`llm-client.ts`） | 填入 Qwen API Key 点「测试连接」能收到模型回复 | ✅ 已验收（[docs/acceptance/sprint-1.md](docs/acceptance/sprint-1.md)） |
+| **2** | 上下文划词取义（mouseup 监听、Shadow DOM 浮窗） | 复杂网页选中多义词，浮窗给出语境化释义且样式不变形 | ✅ 已验收（[docs/acceptance/sprint-2.md](docs/acceptance/sprint-2.md)） |
 | **3** | DOM 解析纯函数（`extractTextNodes` / `chunkTextNodes`，TDD） | 单元测试覆盖脏标签 HTML 用例，100% 通过 | ✅（55/55，见 [docs/acceptance/sprint-3.md](docs/acceptance/sprint-3.md)） |
-| **4.1** | 整页翻译体验优化（块级锚点、译文换行、翻译中标示、同页缓存、视口懒翻译） | 译文在原文下方独立成行，滚动触发懒翻译，关→开即时恢复 | ✅（待人工验收，见 [docs/acceptance/sprint-4.1.md](docs/acceptance/sprint-4.1.md)） |
+| **4.1** | 整页翻译体验优化（块级锚点、译文换行、段末旋转加载圈、同页缓存、视口懒翻译、译文格式与原文对齐） | 译文在原文下方同格式对齐展示，滚动懒翻译，关→开即时恢复 | ✅ 已验收（[docs/acceptance/sprint-4.1.md](docs/acceptance/sprint-4.1.md)） |
 
 每完成一个 Sprint，对照检查：
 
