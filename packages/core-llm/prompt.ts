@@ -3,30 +3,47 @@
  * receives plain text, returns standardized message arrays).
  */
 
+import { classifySelection } from '@shared/selection';
 import type { TranslationRequest } from '@shared/types';
 import type { ChatMessage } from './chat';
 
-const SELECTION_SYSTEM_PROMPT =
-  '你是翻译专家，擅长结合上下文给出词汇或短语最准确的释义，回答简洁、贴合语境。';
+const WORD_SYSTEM_PROMPT =
+  '你是翻译专家，擅长根据上下文给出词汇/短语最准确的释义。回答格式：第一行给出“词性. 中文释义”（如 adv. 故意地；蓄意地），第二行起用一句话解释该词在当前上下文中的具体含义。';
+
+const PARAGRAPH_SYSTEM_PROMPT =
+  '你是专业的网页翻译器，将外语文本翻译为流畅自然的中文，保持原文语气与格式。只输出翻译结果，不要添加任何解释。';
 
 const FULL_PAGE_SYSTEM_PROMPT =
   '你是专业的网页翻译器，将外语文本翻译为流畅自然的中文，保持原文语气与格式。只输出翻译结果，不要添加任何解释。';
 
-/** Build the ChatMessages for a translation request (selection or full-page batch). */
-export function buildTranslationMessages(request: TranslationRequest): ChatMessage[] {
-  return request.type === 'selection' ? selectionMessages(request) : fullPageMessages(request);
+const SELECTION_USER_TEMPLATE = '选中的内容：【{selected}】\n它所在的上下文：【{context}】';
+
+function selectionContext(request: TranslationRequest): string {
+  return (request.context ?? '').trim() || '（无上下文）';
 }
 
-function selectionMessages(request: TranslationRequest): ChatMessage[] {
-  const selected = request.texts[0] ?? '';
-  const context = (request.context ?? '').trim() || '（无上下文）';
-  return [
-    { role: 'system', content: SELECTION_SYSTEM_PROMPT },
-    {
-      role: 'user',
-      content: `请翻译用户选中的词汇/短语：【${selected}】。它所在的上下文是：【${context}】。请给出在此上下文中最准确的释义，并简要解释。`,
-    },
-  ];
+function format(template: string, selected: string, context: string): string {
+  return template.replace('{selected}', selected).replace('{context}', context);
+}
+
+/** Build the ChatMessages for a translation request (selection or full-page batch). */
+export function buildTranslationMessages(request: TranslationRequest): ChatMessage[] {
+  if (request.type === 'selection') {
+    const selected = request.texts[0] ?? '';
+    const context = selectionContext(request);
+    const mode = classifySelection(selected);
+    if (mode === 'word') {
+      return [
+        { role: 'system', content: WORD_SYSTEM_PROMPT },
+        { role: 'user', content: format(SELECTION_USER_TEMPLATE, selected, context) },
+      ];
+    }
+    return [
+      { role: 'system', content: PARAGRAPH_SYSTEM_PROMPT },
+      { role: 'user', content: format(SELECTION_USER_TEMPLATE, selected, context) },
+    ];
+  }
+  return fullPageMessages(request);
 }
 
 function fullPageMessages(request: TranslationRequest): ChatMessage[] {
