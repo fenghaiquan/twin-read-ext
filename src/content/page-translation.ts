@@ -69,14 +69,17 @@ export class PageTranslationController {
   }
 
   async toggle(): Promise<{ enabled: boolean }> {
+    console.log('[twin-read] PageTranslationController.toggle() called, current enabled:', this.enabled);
     this.enabled = !this.enabled;
     this.runToken += 1;
 
     if (!this.enabled) {
+      console.log('[twin-read] disabling translation, calling shutdown()');
       this.shutdown();
       return { enabled: false };
     }
 
+    console.log('[twin-read] enabling translation, calling startTranslation()');
     void this.startTranslation();
     return { enabled: true };
   }
@@ -94,39 +97,51 @@ export class PageTranslationController {
   }
 
   private async startTranslation(): Promise<void> {
+    console.log('[twin-read] startTranslation() called');
     this.allBlocks = extractBlockTargets(this.deps.root);
+    console.log('[twin-read] extracted block targets:', this.allBlocks.length, 'blocks');
     
     for (const block of this.allBlocks) {
       // Check cache first
       const cached = this.cache.get(block.text);
       if (cached) {
+        console.log('[twin-read] using cached translation for block');
         insertTranslationAfter(block.element, cached);
         continue;
       }
 
+      console.log('[twin-read] observing block element');
       // Observe for lazy translation
       this.observer.observe(block.element);
     }
+    console.log('[twin-read] startTranslation() completed');
   }
 
   private handleIntersection(entries: IntersectionObserverEntry[]): void {
+    console.log('[twin-read] handleIntersection called with', entries.length, 'entries');
     const token = this.runToken;
     
     for (const entry of entries) {
+      console.log('[twin-read] processing entry, isIntersecting:', entry.isIntersecting);
       if (!entry.isIntersecting) continue;
       
       const element = entry.target as Element;
       this.observer.unobserve(element);
       
       const block = this.allBlocks.find((b) => b.element === element);
-      if (!block) continue;
+      if (!block) {
+        console.log('[twin-read] block not found for element, skipping');
+        continue;
+      }
 
+      console.log('[twin-read] inserting pending marker');
       // Insert pending marker
       const pending = insertPendingAfter(element);
       this.pendingSpans.set(element, pending);
       this.pendingBlocks.push(block);
 
       // Debounce flush
+      console.log('[twin-read] scheduling flush');
       this.scheduleFlush(token);
     }
   }
