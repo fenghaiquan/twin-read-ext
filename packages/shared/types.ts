@@ -58,6 +58,23 @@ export interface TestConnectionResult {
   errorMessage?: string;
 }
 
+/** Contract 5: messages sent from the popup to content scripts (chrome.tabs.sendMessage). */
+export interface TogglePageTranslationMessage {
+  type: 'toggle-page-translation';
+}
+
+export interface GetPageTranslationStateMessage {
+  type: 'get-page-translation-state';
+}
+
+export type ContentMessage = TogglePageTranslationMessage | GetPageTranslationStateMessage;
+
+/** Result of a ContentMessage. */
+export interface ContentMessageResult {
+  /** Whether full-page translation is currently enabled on the tab. */
+  enabled: boolean;
+}
+
 /** chrome.storage.local keys owned by this extension. */
 export const STORAGE_KEYS = {
   providerSettings: 'providerSettings',

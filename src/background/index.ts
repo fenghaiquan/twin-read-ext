@@ -11,6 +11,10 @@
 
 import type { BackgroundMessage } from '@shared/types';
 import { testConnection, translate } from './llm-client';
+import { createConcurrencyLimiter } from './queue';
+
+/** All outbound LLM calls funnel through this limiter (max 3 in flight, FIFO). */
+const llmRequestLimiter = createConcurrencyLimiter();
 
 function isBackgroundMessage(message: unknown): message is BackgroundMessage {
   if (typeof message !== 'object' || message === null) return false;
@@ -28,7 +32,7 @@ chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse) =
   if (message.type === 'test-connection') {
     void testConnection().then(respond);
   } else {
-    void translate(message.request).then(respond);
+    void llmRequestLimiter.run(() => translate(message.request)).then(respond);
   }
   return true; // keep the port open for the async reply
 });
