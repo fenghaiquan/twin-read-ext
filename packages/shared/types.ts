@@ -44,12 +44,26 @@ export interface TestConnectionMessage {
   type: 'test-connection';
 }
 
+export interface ListModelsMessage {
+  type: 'list-models';
+  /** Form values (may not be persisted yet) — background fetches with these. */
+  baseUrl: string;
+  apiKey: string;
+}
+
 export interface TranslateMessage {
   type: 'translate';
   request: TranslationRequest;
 }
 
-export type BackgroundMessage = TestConnectionMessage | TranslateMessage;
+export type BackgroundMessage = TestConnectionMessage | ListModelsMessage | TranslateMessage;
+
+/** Result of a 'list-models' message. */
+export interface ModelListResult {
+  success: boolean;
+  models: string[];
+  errorMessage?: string;
+}
 
 /** Result of a 'test-connection' message. */
 export interface TestConnectionResult {

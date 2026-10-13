@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildChatCompletionBody, buildChatCompletionsUrl } from '@core-llm/chat';
 import { buildTestConnectionMessages, buildTranslationMessages } from '@core-llm/prompt';
+import { buildModelsUrl, parseModelsResponse } from '@core-llm/models';
 import { parseJsonStringArray, parseTranslationReply } from '@core-llm/parse';
 import type { TranslationRequest } from '@shared/types';
 
@@ -112,5 +113,53 @@ describe('parseTranslationReply', () => {
 describe('parseJsonStringArray (guard against index misalignment)', () => {
   it('stringifies non-string array items to keep 1:1 mapping intact', () => {
     expect(parseJsonStringArray('[{"a":1}, "ok"]', 2)).toEqual(['{"a":1}', 'ok']);
+  });
+});
+
+describe('parseModelsResponse', () => {
+  it('解析标准 OpenAI 格式 {data:[{id}]}（DashScope/DeepSeek/OpenAI）', () => {
+    expect(parseModelsResponse({ data: [{ id: 'qwen-plus' }, { id: 'qwen-max' }] })).toEqual([
+      'qwen-max',
+      'qwen-plus',
+    ]);
+  });
+
+  it('解析 {models:[{id}]} 变体', () => {
+    expect(parseModelsResponse({ models: [{ id: 'glm-4-flash' }, { id: 'glm-4' }] })).toEqual([
+      'glm-4',
+      'glm-4-flash',
+    ]);
+  });
+
+  it('解析字符串数组变体 {data:["id"]}', () => {
+    expect(parseModelsResponse({ data: ['llama3.1', 'qwen2.5:7b'] })).toEqual(['llama3.1', 'qwen2.5:7b']);
+  });
+
+  it('容忍混合与脏数据：跳过非字符串 id，剔除空串与重复项', () => {
+    expect(
+      parseModelsResponse({ data: [{ id: 'm1' }, { id: '' }, { id: 42 }, { id: 'm1' }, 'm2'] }),
+    ).toEqual(['m1', 'm2']);
+  });
+
+  it('非法输入（null / 空对象 / 缺 id 字段）返回空数组', () => {
+    expect(parseModelsResponse(null)).toEqual([]);
+    expect(parseModelsResponse({})).toEqual([]);
+    expect(parseModelsResponse({ data: [{ name: 'no-id' }] })).toEqual([]);
+    expect(parseModelsResponse('oops')).toEqual([]);
+  });
+
+  it('模型名按字母序稳定排序（下拉展示友好）', () => {
+    expect(parseModelsResponse({ data: [{ id: 'zeta' }, { id: 'alpha' }, { id: 'mid' }] })).toEqual([
+      'alpha',
+      'mid',
+      'zeta',
+    ]);
+  });
+});
+
+describe('buildModelsUrl', () => {
+  it('从 Base URL 拼出 /models 端点，容忍末尾斜杠与空白', () => {
+    expect(buildModelsUrl('https://api.deepseek.com/v1')).toBe('https://api.deepseek.com/v1/models');
+    expect(buildModelsUrl(' http://localhost:11434/v1/ ')).toBe('http://localhost:11434/v1/models');
   });
 });

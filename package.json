@@ -1,7 +1,7 @@
 {
   "name": "twin-read-ext",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Twin Read - a lightweight immersive bilingual translation Chrome extension powered by LLMs",
   "type": "module",
   "scripts": {

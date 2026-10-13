@@ -37,6 +37,34 @@
         border-radius: 4px;
         font: inherit;
       }
+      select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 6px 8px;
+        margin-top: 4px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font: inherit;
+        background: inherit;
+      }
+      .provider-hint {
+        margin-top: 8px;
+      }
+      .provider-hint a {
+        color: #1a73e8;
+      }
+      .model-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 4px;
+      }
+      .model-row input {
+        flex: 1;
+        margin-top: 0;
+      }
+      .model-row button {
+        white-space: nowrap;
+      }
       .buttons {
         display: flex;
         gap: 8px;
@@ -82,18 +110,42 @@
         color: inherit;
         text-decoration: underline;
       }
+      details.tutorial {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-top: 16px;
+        color: #555;
+        font-size: 0.92rem;
+      }
+      details.tutorial summary {
+        cursor: pointer;
+        font-weight: 600;
+        color: #333;
+      }
+      details.tutorial a {
+        color: #1a73e8;
+      }
     </style>
   </head>
   <body>
     <h1>Twin Read 设置</h1>
     <fieldset>
       <legend>模型提供商（OpenAI 兼容格式，默认 Qwen / 阿里云百炼）</legend>
+      <label for="provider">常用平台（选择后自动填充，可再修改）</label>
+      <select id="provider">
+        <option value="custom">自定义 / 手动填写</option>
+      </select>
+      <p class="hint provider-hint" id="provider-hint"></p>
       <label for="base-url">Base URL</label>
       <input id="base-url" type="text" placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1" />
       <label for="api-key">API Key</label>
       <input id="api-key" type="password" placeholder="sk-..." autocomplete="off" />
       <label for="model">模型名称</label>
-      <input id="model" type="text" list="model-suggestions" placeholder="qwen-plus" />
+      <div class="model-row">
+        <input id="model" type="text" list="model-suggestions" placeholder="qwen-plus" />
+        <button id="fetch-models-btn" type="button">获取模型列表</button>
+      </div>
       <datalist id="model-suggestions">
         <option value="qwen-max"></option>
         <option value="qwen-plus"></option>
@@ -102,6 +154,20 @@
       </datalist>
       <p class="hint">API Key 仅保存在本机 chrome.storage.local，不会上传到任何服务器。</p>
     </fieldset>
+    <details class="tutorial">
+      <summary>如何获取阿里云百炼（DashScope）API Key？</summary>
+      <ol>
+        <li>
+          访问
+          <a href="https://bailian.console.aliyun.com/" target="_blank" rel="noreferrer">阿里云百炼控制台</a>
+          并登录（新用户通常有免费额度）
+        </li>
+        <li>左侧菜单选择「API-KEY」→「创建我的 API-KEY」</li>
+        <li>复制生成的 Key（sk- 开头），粘贴到上方「API Key」输入框</li>
+        <li>点击「测试连接」，收到模型回复即配置成功</li>
+      </ol>
+      <p class="hint">使用其他 OpenAI 兼容服务商（DeepSeek、Kimi、本地 Ollama 等）？直接修改 Base URL 与模型名，保存时浏览器会请求该域名的访问授权。</p>
+    </details>
     <div class="buttons">
       <button id="save-btn" type="button">保存设置</button>
       <button id="test-btn" type="button">测试连接</button>

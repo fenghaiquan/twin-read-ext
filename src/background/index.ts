@@ -10,7 +10,7 @@
  */
 
 import type { BackgroundMessage } from '@shared/types';
-import { testConnection, translate } from './llm-client';
+import { listModels, testConnection, translate } from './llm-client';
 import { createConcurrencyLimiter } from './queue';
 
 /** All outbound LLM calls funnel through this limiter (max 3 in flight, FIFO). */
@@ -20,6 +20,10 @@ function isBackgroundMessage(message: unknown): message is BackgroundMessage {
   if (typeof message !== 'object' || message === null) return false;
   const { type } = message as { type?: unknown };
   if (type === 'test-connection') return true;
+  if (type === 'list-models') {
+    const m = message as { baseUrl?: unknown; apiKey?: unknown };
+    return typeof m.baseUrl === 'string' && typeof m.apiKey === 'string';
+  }
   if (type !== 'translate') return false;
   return typeof (message as { request?: { id?: unknown } }).request?.id === 'string';
 }
@@ -31,8 +35,15 @@ chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse) =
   };
   if (message.type === 'test-connection') {
     void testConnection().then(respond);
+  } else if (message.type === 'list-models') {
+    void listModels(message.baseUrl, message.apiKey).then(respond);
   } else {
     void llmRequestLimiter.run(() => translate(message.request)).then(respond);
   }
   return true; // keep the port open for the async reply
+});
+
+/** First-run onboarding: open the Options page right after installation. */
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install') void chrome.runtime.openOptionsPage();
 });
