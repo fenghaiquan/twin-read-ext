@@ -6,6 +6,8 @@
  * 2. User clicks dot → dot clicks → panel opens with loading state
  * 3. Translation arrives → showWordResult() or showTranslationResult()
  * 4. User clicks close or outside → hide()
+ * 5. Pin (图钉) button → panel keeps its position (no auto-reposition /
+ *    no outside-click/scroll hiding) and its header becomes a drag handle
  */
 
 const HOST_ID = 'twin-read-panel-host';
@@ -14,6 +16,7 @@ const DOT_OFFSET = 4; // gap between the last word and the dot
 const PANEL_GAP = 6; // gap between the selection and the panel
 const PANEL_MAX_WIDTH = 420;
 const PANEL_MAX_HEIGHT = 400;
+const PANEL_FALLBACK_HEIGHT = 200; // happy-dom / zero-measurement fallback
 
 const STYLES = `
   .dot {
@@ -70,6 +73,31 @@ const STYLES = `
     font-weight: 600;
     color: #e84393;
   }
+  .panel-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .panel-pin {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+  }
+  .panel-pin:hover {
+    color: #333;
+    background: #f5f5f5;
+  }
+  .panel-pin svg {
+    width: 13px;
+    height: 13px;
+    transition: transform 0.15s ease;
+  }
   .panel-close {
     background: none;
     border: none;
@@ -83,6 +111,22 @@ const STYLES = `
   .panel-close:hover {
     color: #333;
     background: #f5f5f5;
+  }
+
+  /* pinned (图钉)：deeper shadow, pink pin icon (rotated), header = drag handle */
+  .panel.pinned {
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2);
+  }
+  .panel.pinned .panel-pin {
+    color: #e84393;
+  }
+  .panel.pinned .panel-pin svg {
+    transform: rotate(45deg);
+  }
+  .panel.pinned .panel-header {
+    cursor: move;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   .panel-body {
@@ -160,6 +204,10 @@ const STYLES = `
       border-color: #3d444d;
       color: #999;
     }
+    .panel-pin:hover {
+      color: #ddd;
+      background: #2d333b;
+    }
     .word-title {
       color: #e6edf3;
     }
@@ -189,6 +237,23 @@ let dot: HTMLDivElement | null = null;
 let panel: HTMLDivElement | null = null;
 let panelBody: HTMLDivElement | null = null;
 let closeBtn: HTMLButtonElement | null = null;
+let pinBtn: HTMLButtonElement | null = null;
+
+// Pin state: pinned panel keeps its position; its header becomes a drag handle
+let pinned = false;
+let dragging = false;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+
+export function isPanelPinned(): boolean {
+  return pinned;
+}
+
+function setPinned(value: boolean): void {
+  pinned = value;
+  pinBtn?.setAttribute('aria-pressed', String(value));
+  panel?.classList.toggle('pinned', value);
+}
 
 function ensureShadow(): void {
   if (hostElement !== null && shadowRoot !== null) return;
@@ -202,7 +267,12 @@ function ensureShadow(): void {
     <div class="panel">
       <div class="panel-header">
         <span class="panel-title">Twin Read</span>
-        <button class="panel-close">×</button>
+        <span class="panel-actions">
+          <button class="panel-pin" title="固定（固定后可拖动）" aria-label="固定面板" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-2.89-1.45V6h1a2 2 0 0 0 0-4H10a2 2 0 0 0 0 4h1v6l-2.89 1.45A2 2 0 0 0 7 15.24Z"></path></svg>
+          </button>
+          <button class="panel-close" aria-label="关闭">×</button>
+        </span>
       </div>
       <div class="panel-body"></div>
     </div>
@@ -212,6 +282,28 @@ function ensureShadow(): void {
   panel = shadowRoot.querySelector('.panel') as HTMLDivElement;
   panelBody = shadowRoot.querySelector('.panel-body') as HTMLDivElement;
   closeBtn = shadowRoot.querySelector('.panel-close') as HTMLButtonElement;
+  pinBtn = shadowRoot.querySelector('.panel-pin') as HTMLButtonElement;
+
+  pinBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setPinned(!pinned);
+  });
+
+  // Drag handle: pinned header (except its buttons) starts a drag
+  const header = shadowRoot.querySelector('.panel-header') as HTMLElement | null;
+  header?.addEventListener('mousedown', (e) => {
+    if (!pinned || panel === null) return;
+    if (e.target instanceof Element && e.target.closest('button') !== null) return;
+    startDrag(e);
+  });
+
+  // Drag tracking (attached once; no-op unless dragging)
+  document.addEventListener('mousemove', (e) => {
+    if (dragging) movePanelTo(e.clientX, e.clientY);
+  });
+  document.addEventListener('mouseup', () => {
+    dragging = false;
+  });
 
   dot.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -233,6 +325,9 @@ function positionElement(
   rect: DOMRect,
   placement: 'dot' | 'panel',
 ): void {
+  // Pinned panel keeps its user-dragged position; content updates in place
+  if (pinned && placement === 'panel') return;
+
   const margin = 8;
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
@@ -257,7 +352,7 @@ function positionElement(
     top = rect.bottom + PANEL_GAP;
 
     const width = element.offsetWidth || PANEL_MAX_WIDTH;
-    const height = element.offsetHeight || 200;
+    const height = element.offsetHeight || PANEL_FALLBACK_HEIGHT;
 
     // Clamp right edge
     if (left + width > viewportWidth - margin) {
@@ -359,8 +454,30 @@ export function showError(rect: DOMRect, message: string): void {
   panel?.classList.add('visible');
 }
 
+function startDrag(event: MouseEvent): void {
+  if (panel === null) return;
+  const rect = panel.getBoundingClientRect();
+  dragOffsetX = event.clientX - rect.left;
+  dragOffsetY = event.clientY - rect.top;
+  dragging = true;
+  event.preventDefault(); // avoid starting a text selection while dragging
+}
+
+function movePanelTo(clientX: number, clientY: number): void {
+  if (panel === null) return;
+  const width = panel.offsetWidth || PANEL_MAX_WIDTH;
+  const height = panel.offsetHeight || PANEL_FALLBACK_HEIGHT;
+  // Clamp inside the viewport so the panel can never be lost off-screen
+  const left = Math.min(Math.max(clientX - dragOffsetX, 0), Math.max(window.innerWidth - width, 0));
+  const top = Math.min(Math.max(clientY - dragOffsetY, 0), Math.max(window.innerHeight - height, 0));
+  panel.style.left = `${Math.round(left)}px`;
+  panel.style.top = `${Math.round(top)}px`;
+}
+
 export function hide(): void {
   hideDot();
+  dragging = false;
+  setPinned(false); // closing the panel always releases the pin
   panel?.classList.remove('visible');
   if (panelBody !== null) {
     panelBody.innerHTML = '';

@@ -30,6 +30,7 @@ import {
   getPanelHost,
   hide,
   hideDot,
+  isPanelPinned,
   openPanel,
   showError,
   showDot,
@@ -144,14 +145,18 @@ document.addEventListener('mouseup', (event: MouseEvent) => {
 });
 
 document.addEventListener('mousedown', (event: MouseEvent) => {
-  if (!isPanelEventTarget(event.target)) hideAll();
+  // Pinned panel (图钉) stays visible on outside clicks; only the close
+  // button or Escape dismisses it.
+  if (!isPanelEventTarget(event.target) && !isPanelPinned()) hideAll();
 });
 
 document.addEventListener('keydown', (event: KeyboardEvent) => {
   if (event.key === 'Escape') hideAll();
 });
 
-window.addEventListener('scroll', () => hideAll(), { passive: true });
+window.addEventListener('scroll', () => {
+  if (!isPanelPinned()) hideAll();
+}, { passive: true });
 
 // The dot lives inside a closed ShadowRoot; its click is re-emitted from the
 // host element as a composed custom event.

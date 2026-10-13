@@ -12,6 +12,7 @@ import {
   showTranslationResult,
   showError,
   hide,
+  isPanelPinned,
 } from '../src/content/panel';
 
 function makeRect(left = 100, top = 100, width = 150, height = 20): DOMRect {
@@ -123,5 +124,82 @@ describe('panel (ADR-003 Shadow DOM isolation)', () => {
     const rect = makeRect();
     // Panel should be below the selection
     expect(panelTop).toBeGreaterThan(rect.bottom);
+  });
+});
+
+describe('panel pin (图钉)：固定后可拖动', () => {
+  function getPinButton(): HTMLButtonElement {
+    const pin = getShadowRoot()?.querySelector('.panel-pin');
+    if (!(pin instanceof HTMLButtonElement)) throw new Error('pin button not found');
+    return pin;
+  }
+
+  it('toggles the pin state from the header pin button and resets on hide()', () => {
+    showDot(makeRect());
+    openPanel(makeRect());
+    expect(isPanelPinned()).toBe(false);
+
+    getPinButton().click();
+    expect(isPanelPinned()).toBe(true);
+    expect(getPanelElement()?.classList.contains('pinned')).toBe(true);
+
+    getPinButton().click();
+    expect(isPanelPinned()).toBe(false);
+
+    getPinButton().click();
+    hide();
+    expect(isPanelPinned()).toBe(false); // closing the panel always releases the pin
+  });
+
+  it('keeps the panel position when pinned and a new translation arrives', () => {
+    showDot(makeRect());
+    openPanel(makeRect());
+    const panel = getPanelElement();
+    const before = { left: panel?.style.left ?? '', top: panel?.style.top ?? '' };
+
+    getPinButton().click();
+    showTranslationResult(makeRect(600, 500), 'Hello world', '你好，世界');
+
+    // content updates but the user-pinned position is preserved
+    expect(panel?.style.left).toBe(before.left);
+    expect(panel?.style.top).toBe(before.top);
+    const shadow = getShadowRoot();
+    expect(shadow?.querySelector('.translation-text')?.textContent).toContain('你好');
+  });
+
+  it('moves the pinned panel by dragging its header and clamps to the viewport', () => {
+    showDot(makeRect());
+    openPanel(makeRect());
+    getPinButton().click();
+    const panel = getPanelElement();
+    const beforeLeft = Number.parseInt(panel?.style.left ?? '0', 10);
+
+    const header = getShadowRoot()?.querySelector('.panel-header');
+    if (!(header instanceof HTMLElement)) throw new Error('panel header not found');
+    header.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX: 150, clientY: 130 }));
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 400, clientY: 300 }));
+    document.dispatchEvent(new MouseEvent('mouseup'));
+
+    const afterLeft = Number.parseInt(panel?.style.left ?? '0', 10);
+    expect(afterLeft).toBeGreaterThan(beforeLeft);
+    // clamped: top stays within the viewport height
+    const afterTop = Number.parseInt(panel?.style.top ?? '0', 10);
+    expect(afterTop).toBeLessThanOrEqual(window.innerHeight);
+  });
+
+  it('does not drag when the panel is not pinned', () => {
+    showDot(makeRect());
+    openPanel(makeRect());
+    const panel = getPanelElement();
+    const before = { left: panel?.style.left ?? '', top: panel?.style.top ?? '' };
+
+    const header = getShadowRoot()?.querySelector('.panel-header');
+    if (!(header instanceof HTMLElement)) throw new Error('panel header not found');
+    header.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX: 150, clientY: 130 }));
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 400, clientY: 300 }));
+    document.dispatchEvent(new MouseEvent('mouseup'));
+
+    expect(panel?.style.left).toBe(before.left);
+    expect(panel?.style.top).toBe(before.top);
   });
 });

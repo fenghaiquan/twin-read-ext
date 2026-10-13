@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Chrome](https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/develop/migrate)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](tsconfig.json)
-[![Tests](https://img.shields.io/badge/tests-125%2F125-brightgreen)](#%EF%B8%8F-%E5%BC%80%E5%8F%91)
+[![Tests](https://img.shields.io/badge/tests-129%2F129-brightgreen)](#%EF%B8%8F-%E5%BC%80%E5%8F%91)
 
 *A lightweight immersive bilingual reading extension for Chrome, powered by any OpenAI-compatible LLM (default: Qwen).*
 
@@ -29,7 +29,7 @@ Twin Read 让你用一套自己的 API Key，在任意网页获得「原文 + �
 
 ### 🔍 上下文划词取义
 
-选中文字后出现粉色圆点指示器，点击展开释义卡片，按选区长度自动切换模式：
+选中文字后出现粉色圆点指示器，点击展开释义卡片，按选区长度自动切换模式；卡片可点击 📌 固定，固定后不再随点击/滚动自动收起，并可拖拽标题栏任意摆放：
 
 | 模式 | 触发条件 | 卡片内容 |
 | :--- | :--- | :--- |
@@ -117,7 +117,7 @@ npm run gate     # 宪法关卡：tsc + eslint + vitest + depcruise，必须全�
 
 1. `tsc --noEmit` —— TypeScript `strict: true` 全量类型检查
 2. `eslint . --max-warnings=0` —— 零警告，含 `complexity ≤ 10` 复杂度上限
-3. `vitest run` —— 单元测试（当前 **125/125**，覆盖 DOM 解析、分批、注入、划词、浮窗、LLM 解析、并发队列、域名权限、平台预设、模型列表解析与行为设置）
+3. `vitest run` —— 单元测试（当前 **129/129**，覆盖 DOM 解析、分批、注入、划词、浮窗、拖拽固定、LLM 解析、并发队列、域名权限、平台预设、模型列表解析与行为设置）
 4. `depcruise` —— 依赖边界校验（见上表约束）
 
 ```
@@ -129,7 +129,7 @@ npm run gate     # 宪法关卡：tsc + eslint + vitest + depcruise，必须全�
 │  ├─ content/       # DOM 解析、分批、注入、划词、浮窗
 │  ├─ options/       # 设置页
 │  └─ popup/         # 工具栏弹窗
-├─ tests/            # 12 个测试文件，125 个用例
+├─ tests/            # 12 个测试文件，129 个用例
 └─ docs/
    ├─ adr/           # 4 份架构决策记录
    └─ acceptance/    # 每个 Sprint 的人工验收清单
