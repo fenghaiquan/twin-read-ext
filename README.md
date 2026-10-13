@@ -44,17 +44,17 @@ Twin Read 让你用一套自己的 API Key，在任意网页获得「原文 + �
 
 ## 📸 效果预览
 
-### 整页对照翻译
+### 划词取义 - 单词模式
 
-![整页对照翻译：段落末尾旋转加载圈 → 译文与原文同格式对齐展示](docs/screenshots/page-translation.png)
+![划词 - 单词模式：结合所在段落上下文的语境化释义](docs/screenshots/page-translation.png)
 
 ### 划词取义 - 段落模式
 
 ![划词 - 段落模式：长文本选区展示原文与译文对照](docs/screenshots/selection-paragraph.png)
 
-### 划词取义 - 单词模式
+### 整页对照翻译
 
-![划词 - 单词模式：多义词非确定性的语境化释义（结合所在段落上下文）](docs/screenshots/selection-word.png)
+![整页对照翻译：段落末尾旋转加载圈 → 译文与原文同格式对齐展示](docs/screenshots/selection-word.png)
 
 ## 🚀 快速开始
 
